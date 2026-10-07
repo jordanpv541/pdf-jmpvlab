@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unir PDF gratis y sin anuncios | PDF jmpvlab</title>
+<meta name="description" content="Une varios PDF en uno solo desde tu navegador. Gratis, sin anuncios, sin cuenta y sin subir tus archivos.">
+<link rel="canonical" href="https://pdf.jmpvlab.com/unir/">
+<meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f131b" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PDF jmpvlab">
+<meta property="og:title" content="Unir PDF gratis y sin anuncios | PDF jmpvlab">
+<meta property="og:description" content="Une varios PDF en uno solo desde tu navegador. Gratis, sin anuncios, sin cuenta y sin subir tus archivos.">
+<meta property="og:url" content="https://pdf.jmpvlab.com/unir/">
+<meta property="og:image" content="https://pdf.jmpvlab.com/assets/icons/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/styles.css">
+<script type="module" src="../assets/js/tools/unir.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--manila)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--stamp)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
+    <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+  </div>
+</header>
+<main id="main" class="tool" data-tool="unir">
+  <a class="back" href="../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg>Todas las herramientas</a>
+  <h1>Unir PDF</h1>
+  <p class="lede">Elige dos o más PDF, ponlos en orden y júntalos en un solo archivo.</p>
+
+  <section class="step" data-step="pick" aria-label="Elegir archivos">
+    <div class="drop" data-drop>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 3.5h7.5v10H4z"/><path d="M12.5 10.5H20v10h-7.5z"/><path d="M8 13.5v3.5h4.5"/><path d="M10.6 15.3 12.5 17l-1.9 1.7"/></svg>
+      <button type="button" class="btn btn-primary" data-pick>Elegir archivos PDF</button>
+      <p class="drop-hint">o suéltalos aquí</p>
+      <input type="file" accept="application/pdf,.pdf" multiple hidden data-input>
+    </div>
+    <p class="local-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><span>Tus archivos no salen de tu dispositivo. Todo se hace en tu navegador.</span></p>
+  </section>
+
+  <section class="step" data-step="work" hidden aria-label="Opciones">
+      <h2 class="field-label" tabindex="-1" data-focus>Se unirán en este orden</h2>
+      <ol class="file-list" data-files data-drop-more></ol>
+      <div class="list-tools">
+        <button type="button" class="btn btn-quiet btn-small" data-add><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg>Agregar más PDF</button>
+        <button type="button" class="btn btn-quiet btn-small" data-sort>Ordenar por nombre</button>
+      </div>
+      <div class="options">
+        <div>
+          <label class="check-row"><input type="checkbox" id="interleave"><span>Intercalar las páginas</span></label>
+          <span class="field-help">Toma una página de cada archivo por turnos: 1.ª del primero, 1.ª del segundo, 2.ª del primero… Sirve para escaneos de doble cara.</span>
+          <div class="subfield" data-reverse hidden>
+            <label class="check-row"><input type="checkbox" id="reverse"><span>Leer al revés los archivos que siguen al primero</span></label>
+            <span class="field-help">Úsalo si escaneaste el reverso de las hojas empezando por la última.</span>
+          </div>
+        </div>
+      </div>
+      <div class="actions"><button type="button" class="btn btn-primary" data-run>Unir PDF</button></div>
+  </section>
+
+  <div class="progress" data-progress hidden>
+    <progress max="1" value="0"></progress>
+    <p class="progress-text" aria-live="polite"></p>
+  </div>
+  <p class="status" data-status role="status" aria-live="polite"></p>
+
+  <section class="step done" data-step="done" hidden tabindex="-1" aria-labelledby="done-title">
+    <h2 id="done-title">Listo para descargar</h2>
+    <p class="done-file" data-done-file></p>
+    <p class="done-note" data-done-note></p>
+    <div class="result-pages" data-result></div>
+    <p class="result-note" data-result-note></p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#" data-download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="m7 10.5 5 5 5-5"/><path d="M5 20h14"/></svg>Descargar</a>
+      <button type="button" class="btn btn-quiet" data-adjust>Volver a las opciones</button>
+      <button type="button" class="btn btn-quiet" data-restart>Empezar con otro archivo</button>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Sin anuncios y sin cuentas. Casi todo pasa en tu navegador; las conversiones con Word, Excel, PowerPoint, HTML y PDF/A usan nuestro servidor y borran tu archivo al terminar.</p>
+    <ul class="footer-links">
+      <li><a href="../">Todas las herramientas</a></li>
+      <li><a href="../privacidad/">Privacidad</a></li>
+      <li><a href="../terminos/">Términos y créditos</a></li>
+      <li><a href="https://github.com/jordanpv541/pdf-jmpvlab" rel="noopener">Código fuente</a></li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>

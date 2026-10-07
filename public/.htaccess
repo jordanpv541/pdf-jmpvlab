@@ -1,0 +1,60 @@
+# PDF jmpvlab: configuración para Apache (SiteGround)
+# El sitio es 100 % estático. No hay PHP ni base de datos.
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # HTTPS: en SiteGround es mejor activarlo en Site Tools > Seguridad > HTTPS Enforce.
+  # Si prefieres hacerlo aquí, quita el # de las dos líneas siguientes.
+  # RewriteCond %{HTTPS} off
+  # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Quita "index.html" de las direcciones: /unir/index.html → /unir/
+  RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
+  RewriteRule ^(.*/)?index\.html$ /$1 [R=301,L]
+</IfModule>
+
+# Tipos de archivo que Apache a veces no conoce
+<IfModule mod_mime.c>
+  AddType text/javascript .mjs .js
+  AddType application/wasm .wasm
+  AddType application/manifest+json .webmanifest
+  AddType font/woff2 .woff2
+  AddType application/octet-stream .bcmap .pfb .gz
+  # Los datos de idioma del OCR (.traineddata.gz) se descomprimen en el navegador:
+  # Apache no debe marcarlos como contenido comprimido.
+  RemoveEncoding .gz
+  AddCharset utf-8 .html .css .js .mjs .webmanifest .txt .xml
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Política de seguridad: solo se carga código del propio sitio.
+  # 'wasm-unsafe-eval' lo necesita PDF.js para abrir algunas imágenes dentro de los PDF.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' https://api-pdf.jmpvlab.com blob: data:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "no-referrer"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  Header always set X-Frame-Options "DENY"
+  # Actívalo cuando el sitio ya funcione bien con HTTPS:
+  # Header always set Strict-Transport-Security "max-age=31536000"
+
+  # Caché: las páginas y sw.js siempre se revisan; lo demás se guarda una semana.
+  <FilesMatch "\.(html|webmanifest)$|^sw\.js$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.(css|js|mjs|woff2|png|svg|wasm|bcmap|pfb|icc|gz)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  <FilesMatch "^sw\.js$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/manifest+json image/svg+xml application/wasm text/plain application/xml
+</IfModule>

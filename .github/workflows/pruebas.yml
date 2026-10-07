@@ -1,0 +1,43 @@
+# Revisa cada cambio: pruebas de la API, que la imagen Docker se construya y que el sitio se genere.
+name: Pruebas
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r server/api/requirements.txt pytest
+      - run: python -m pytest server/tests -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir la imagen de la API
+        run: docker build -t pdf-jmpvlab-api server/api
+      - name: La API arranca y carga sus librerías
+        run: |
+          docker run --rm --read-only --tmpfs /tmp pdf-jmpvlab-api \
+            python -c "import app, converters, pdf2docx, openpyxl, pptx; print('ok')"
+      - name: Revisar docker-compose.yml
+        working-directory: server
+        run: cp .env.example .env && docker compose config -q
+
+  sitio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node tools/build.mjs

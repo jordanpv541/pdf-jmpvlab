@@ -1,0 +1,71 @@
+# Servidor de conversiones de PDF jmpvlab.
+#   caddy     → recibe las visitas en 80/443 y saca el certificado HTTPS solo
+#   api       → nuestra API (FastAPI)
+#   gotenberg → LibreOffice y Chromium; no se publica a internet
+name: pdf-jmpvlab
+
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file: .env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+    networks:
+      - front
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      GOTENBERG_URL: http://gotenberg:3000
+    read_only: true
+    tmpfs:
+      - /tmp:size=2g
+    mem_limit: 3g
+    depends_on:
+      - gotenberg
+    networks:
+      - front
+      - back
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    restart: unless-stopped
+    command:
+      - gotenberg
+      - --api-timeout=200s
+      - --api-body-limit=100MB
+      - --webhook-disable
+      - --log-level=warn
+      - --libreoffice-restart-after=20
+      - --chromium-restart-after=50
+      # Chromium no puede abrir archivos locales ni direcciones internas.
+      - --chromium-deny-list=^file:(?!//\/tmp/).*|^https?://(localhost|[^/]*\.localhost|[^/]*\.internal|127\.|10\.|0\.|169\.254\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|100\.(6[4-9]|[7-9][0-9]|1[01][0-9]|12[0-7])\.|\[)
+    mem_limit: 4g
+    networks:
+      back: {}
+      egress:
+        # IP fija: el firewall le prohíbe abrir conexiones a redes internas.
+        ipv4_address: 172.31.250.10
+
+networks:
+  front: {}
+  back:
+    internal: true
+  egress:
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}

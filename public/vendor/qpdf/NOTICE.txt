@@ -1,0 +1,5 @@
+qpdf 12.2.0 (https://github.com/qpdf/qpdf), Apache License 2.0.
+Compilado a WebAssembly por el paquete @neslinesli93/qpdf-wasm 0.3.0
+(https://github.com/neslinesli93/qpdf-wasm), licencia ISC.
+qpdf usa zlib y libjpeg para comprimir datos e imágenes.
+El texto completo de la Licencia Apache 2.0 está en el archivo LICENSE.

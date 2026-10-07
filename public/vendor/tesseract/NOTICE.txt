@@ -1,0 +1,5 @@
+tesseract.js 7.0.0 (https://github.com/naptha/tesseract.js), Apache License 2.0 (LICENSE.md).
+tesseract.js-core 7.0.0, Tesseract OCR compilado a WebAssembly, Apache License 2.0 (core/LICENSE).
+Datos de idioma spa y eng (tessdata_best, versión entera) del proyecto Tesseract OCR,
+distribuidos por los paquetes @tesseract.js-data/spa y @tesseract.js-data/eng.
+Los datos de tessdata_best se publican con la Apache License 2.0.

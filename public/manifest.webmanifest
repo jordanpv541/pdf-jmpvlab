@@ -1,0 +1,22 @@
+{
+  "name": "PDF jmpvlab",
+  "short_name": "PDF jmpvlab",
+  "description": "Herramientas PDF gratis y sin anuncios. Todo pasa en tu navegador.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f6fa",
+  "theme_color": "#f4f6fa",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Unir PDF", "url": "unir/" },
+    { "name": "Dividir PDF", "url": "dividir/" },
+    { "name": "JPG a PDF", "url": "jpg-a-pdf/" },
+    { "name": "PDF a JPG", "url": "pdf-a-jpg/" }
+  ]
+}

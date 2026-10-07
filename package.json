@@ -1,0 +1,22 @@
+{
+  "name": "pdf-jmpvlab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Herramientas PDF gratis y sin anuncios. Casi todo funciona en el navegador; las conversiones de Office, HTML y PDF/A usan un servidor propio.",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "preview": "node tools/build.mjs --preview preview",
+    "serve": "python3 tools/serve.py public 8765"
+  },
+  "vendored": {
+    "pdf-lib": "1.17.1 (vendor/pdf-lib/pdf-lib.esm.min.js)",
+    "pdfjs-dist": "6.4.299, compilación legacy (vendor/pdfjs/)",
+    "fflate": "0.8.3 (vendor/fflate/fflate.js)",
+    "@fontsource/atkinson-hyperlegible-next": "assets/fonts/",
+    "qpdf": "12.2.0 vía @neslinesli93/qpdf-wasm 0.3.0 (vendor/qpdf/)",
+    "tesseract.js": "7.0.0 + tesseract.js-core 7.0.0 (vendor/tesseract/)"
+  },
+  "repository": "github:jordanpv541/pdf-jmpvlab"
+}

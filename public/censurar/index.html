@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Censurar PDF y tapar datos privados gratis | PDF jmpvlab</title>
+<meta name="description" content="Tapa y borra de verdad datos privados de un PDF desde tu navegador. Gratis, sin anuncios y sin subir tus archivos.">
+<link rel="canonical" href="https://pdf.jmpvlab.com/censurar/">
+<meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f131b" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PDF jmpvlab">
+<meta property="og:title" content="Censurar PDF y tapar datos privados gratis | PDF jmpvlab">
+<meta property="og:description" content="Tapa y borra de verdad datos privados de un PDF desde tu navegador. Gratis, sin anuncios y sin subir tus archivos.">
+<meta property="og:url" content="https://pdf.jmpvlab.com/censurar/">
+<meta property="og:image" content="https://pdf.jmpvlab.com/assets/icons/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/styles.css">
+<script type="module" src="../assets/js/tools/censurar.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--manila)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--stamp)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
+    <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+  </div>
+</header>
+<main id="main" class="tool" data-tool="censurar">
+  <a class="back" href="../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg>Todas las herramientas</a>
+  <h1>Censurar PDF</h1>
+  <p class="lede">Dibuja recuadros sobre lo que no se debe ver. Lo que tapes se borra del archivo.</p>
+
+  <section class="step" data-step="pick" aria-label="Elegir archivos">
+    <div class="drop" data-drop>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h12v18H6z"/><path d="M9 7h6M9 17.5h3.5"/><rect x="8.5" y="10.5" width="7" height="3.5" fill="currentColor"/></svg>
+      <button type="button" class="btn btn-primary" data-pick>Elegir PDF</button>
+      <p class="drop-hint">o suéltalo aquí</p>
+      <input type="file" accept="application/pdf,.pdf" hidden data-input>
+    </div>
+    <p class="local-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><span>Tus archivos no salen de tu dispositivo. Todo se hace en tu navegador.</span></p>
+  </section>
+
+  <section class="step" data-step="work" hidden aria-label="Opciones">
+      <p class="file-summary" tabindex="-1" data-focus data-summary></p>
+      <p class="field-help hint">Arrastra sobre la página para dibujar un recuadro. Toca la × de un recuadro para quitarlo.</p>
+      <figure class="live-preview redact-figure">
+        <div class="crop-stage">
+          <div class="redact-stage" data-stage></div>
+        </div>
+        <figcaption class="page-nav">
+            <button type="button" class="icon-btn" data-prev aria-label="Ver la página anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg></button>
+            <span data-page-label>Página 1</span>
+            <button type="button" class="icon-btn" data-next aria-label="Ver la página siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></button>
+          </figcaption>
+      </figure>
+      <div class="list-tools">
+        <span class="field-help" data-boxes-count aria-live="polite"></span>
+        <button type="button" class="btn btn-quiet btn-small" data-clear-page>Quitar los recuadros de esta página</button>
+      </div>
+      <div class="options">
+        <fieldset>
+          <legend>Color del recuadro</legend>
+          <div class="chips"><label class="chip"><input type="radio" name="fill" value="black" checked><span>Negro</span></label><label class="chip"><input type="radio" name="fill" value="white"><span>Blanco</span></label></div>
+        </fieldset>
+      </div>
+      <p class="field-help note">Las páginas con recuadros se guardan como imagen: lo tapado desaparece del archivo, pero el texto de esas páginas ya no se podrá seleccionar ni buscar. Las demás páginas quedan igual. También se quitan los datos del documento, como el autor y el título.</p>
+      <div class="actions"><button type="button" class="btn btn-primary" data-run>Censurar PDF</button></div>
+  </section>
+
+  <div class="progress" data-progress hidden>
+    <progress max="1" value="0"></progress>
+    <p class="progress-text" aria-live="polite"></p>
+  </div>
+  <p class="status" data-status role="status" aria-live="polite"></p>
+
+  <section class="step done" data-step="done" hidden tabindex="-1" aria-labelledby="done-title">
+    <h2 id="done-title">Listo para descargar</h2>
+    <p class="done-file" data-done-file></p>
+    <p class="done-note" data-done-note></p>
+    <div class="result-pages" data-result></div>
+    <p class="result-note" data-result-note></p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#" data-download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="m7 10.5 5 5 5-5"/><path d="M5 20h14"/></svg>Descargar</a>
+      <button type="button" class="btn btn-quiet" data-adjust>Volver a las opciones</button>
+      <button type="button" class="btn btn-quiet" data-restart>Empezar con otro archivo</button>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Sin anuncios y sin cuentas. Casi todo pasa en tu navegador; las conversiones con Word, Excel, PowerPoint, HTML y PDF/A usan nuestro servidor y borran tu archivo al terminar.</p>
+    <ul class="footer-links">
+      <li><a href="../">Todas las herramientas</a></li>
+      <li><a href="../privacidad/">Privacidad</a></li>
+      <li><a href="../terminos/">Términos y créditos</a></li>
+      <li><a href="https://github.com/jordanpv541/pdf-jmpvlab" rel="noopener">Código fuente</a></li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poner marca de agua a un PDF gratis | PDF jmpvlab</title>
+<meta name="description" content="Agrega una marca de agua de texto o imagen a un PDF desde tu navegador. Gratis, sin anuncios y sin subir nada.">
+<link rel="canonical" href="https://pdf.jmpvlab.com/marca-de-agua/">
+<meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f131b" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../assets/icons/apple-touch-icon.png">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:site_name" content="PDF jmpvlab">
+<meta property="og:title" content="Poner marca de agua a un PDF gratis | PDF jmpvlab">
+<meta property="og:description" content="Agrega una marca de agua de texto o imagen a un PDF desde tu navegador. Gratis, sin anuncios y sin subir nada.">
+<meta property="og:url" content="https://pdf.jmpvlab.com/marca-de-agua/">
+<meta property="og:image" content="https://pdf.jmpvlab.com/assets/icons/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/styles.css">
+<script type="module" src="../assets/js/tools/marca-de-agua.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--manila)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--stamp)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
+    <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+  </div>
+</header>
+<main id="main" class="tool" data-tool="marca-de-agua">
+  <a class="back" href="../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg>Todas las herramientas</a>
+  <h1>Marca de agua</h1>
+  <p class="lede">Pon un texto o una imagen sobre todas las páginas.</p>
+
+  <section class="step" data-step="pick" aria-label="Elegir archivos">
+    <div class="drop" data-drop>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h12v18H6z"/><path d="m7.5 17.5 9-11" stroke-dasharray="2.2 2.2"/></svg>
+      <button type="button" class="btn btn-primary" data-pick>Elegir PDF</button>
+      <p class="drop-hint">o suéltalo aquí</p>
+      <input type="file" accept="application/pdf,.pdf" hidden data-input>
+    </div>
+    <p class="local-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><span>Tus archivos no salen de tu dispositivo. Todo se hace en tu navegador.</span></p>
+  </section>
+
+  <section class="step" data-step="work" hidden aria-label="Opciones">
+      <p class="file-summary" tabindex="-1" data-focus data-summary></p>
+      <div class="edit-layout">
+        <div class="options">
+          <fieldset>
+            <legend>Tipo de marca</legend>
+            <div class="chips"><label class="chip"><input type="radio" name="kind" value="text" checked><span>Texto</span></label><label class="chip"><input type="radio" name="kind" value="image"><span>Imagen</span></label></div>
+          </fieldset>
+          <div class="subfield" data-kind="text">
+            <label class="field-label" for="wm-text">Texto</label>
+            <input type="text" id="wm-text" value="Confidencial" maxlength="120" autocomplete="off">
+            <div class="row">
+              <div>
+                <label class="field-label" for="wm-size">Tamaño de letra</label>
+                <input type="number" id="wm-size" min="8" max="300" step="1" value="60" inputmode="numeric">
+              </div>
+              <div>
+                <label class="field-label" for="wm-color">Color</label>
+                <input type="color" id="wm-color" value="#c0392b">
+              </div>
+            </div>
+          <div class="row">
+            <div>
+              <label class="field-label" for="wm-font">Fuente</label>
+              <select id="wm-font">
+                <option value="helvetica">Helvetica</option>
+                <option value="times">Times</option>
+                <option value="courier">Courier</option>
+              </select>
+            </div>
+            <div><label class="check-row"><input type="checkbox" id="wm-bold" checked><span>Negrita</span></label></div>
+          </div>
+          </div>
+          <div class="subfield" data-kind="image" hidden>
+            <span class="field-label">Imagen</span>
+            <div class="image-pick">
+              <button type="button" class="btn btn-quiet btn-small" data-wm-pick>Elegir imagen PNG o JPG</button>
+              <input type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" hidden data-wm-input>
+              <span class="field-help" data-wm-name>Ninguna imagen elegida.</span>
+            </div>
+            <label class="field-label" for="wm-scale">Ancho: <output for="wm-scale" data-out="wm-scale">40</output> % de la página</label>
+            <input type="range" id="wm-scale" min="5" max="100" step="1" value="40">
+          </div>
+          <fieldset>
+            <legend>Ubicación</legend>
+            <div class="chips"><label class="chip"><input type="radio" name="layout" value="single" checked><span>Una vez</span></label><label class="chip"><input type="radio" name="layout" value="tile"><span>Repetida en mosaico</span></label></div>
+            <div class="subfield" data-layout="single">
+              <div class="pos-grid"><label class="pos-spot" title="Arriba a la izquierda"><input type="radio" name="pos" value="tl" aria-label="Arriba a la izquierda"><span aria-hidden="true"></span></label><label class="pos-spot" title="Arriba al centro"><input type="radio" name="pos" value="tc" aria-label="Arriba al centro"><span aria-hidden="true"></span></label><label class="pos-spot" title="Arriba a la derecha"><input type="radio" name="pos" value="tr" aria-label="Arriba a la derecha"><span aria-hidden="true"></span></label><label class="pos-spot" title="En medio a la izquierda"><input type="radio" name="pos" value="ml" aria-label="En medio a la izquierda"><span aria-hidden="true"></span></label><label class="pos-spot" title="En el centro"><input type="radio" name="pos" value="mc" aria-label="En el centro" checked><span aria-hidden="true"></span></label><label class="pos-spot" title="En medio a la derecha"><input type="radio" name="pos" value="mr" aria-label="En medio a la derecha"><span aria-hidden="true"></span></label><label class="pos-spot" title="Abajo a la izquierda"><input type="radio" name="pos" value="bl" aria-label="Abajo a la izquierda"><span aria-hidden="true"></span></label><label class="pos-spot" title="Abajo al centro"><input type="radio" name="pos" value="bc" aria-label="Abajo al centro"><span aria-hidden="true"></span></label><label class="pos-spot" title="Abajo a la derecha"><input type="radio" name="pos" value="br" aria-label="Abajo a la derecha"><span aria-hidden="true"></span></label></div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Inclinación</legend>
+            <div class="chips"><label class="chip"><input type="radio" name="angle" value="0"><span>Recta</span></label><label class="chip"><input type="radio" name="angle" value="45" checked><span>Diagonal</span></label><label class="chip"><input type="radio" name="angle" value="90"><span>Vertical</span></label></div>
+          </fieldset>
+          <div>
+            <label class="field-label" for="wm-opacity">Opacidad: <output for="wm-opacity" data-out="wm-opacity">30</output> %</label>
+            <input type="range" id="wm-opacity" min="5" max="100" step="5" value="30">
+          </div>
+          <fieldset>
+            <legend>Capa</legend>
+            <div class="chips"><label class="chip"><input type="radio" name="layer" value="above" checked><span>Encima del contenido</span></label><label class="chip"><input type="radio" name="layer" value="below"><span>Debajo del contenido</span></label></div>
+            <span class="field-help">Debajo no se ve sobre fotos ni páginas escaneadas, porque las tapan.</span>
+          </fieldset>
+          <div class="row">
+            <div>
+              <label class="field-label" for="wm-from">Desde la página</label>
+              <input type="number" id="wm-from" min="1" step="1" value="1" inputmode="numeric">
+            </div>
+            <div>
+              <label class="field-label" for="wm-to">Hasta la página</label>
+              <input type="number" id="wm-to" min="1" step="1" inputmode="numeric">
+            </div>
+          </div>
+        </div>
+        <figure class="live-preview"><div class="live-preview-page" data-preview aria-hidden="true"></div><figcaption data-preview-caption>Vista previa</figcaption></figure>
+      </div>
+      <div class="actions"><button type="button" class="btn btn-primary" data-run>Agregar marca de agua</button></div>
+  </section>
+
+  <div class="progress" data-progress hidden>
+    <progress max="1" value="0"></progress>
+    <p class="progress-text" aria-live="polite"></p>
+  </div>
+  <p class="status" data-status role="status" aria-live="polite"></p>
+
+  <section class="step done" data-step="done" hidden tabindex="-1" aria-labelledby="done-title">
+    <h2 id="done-title">Listo para descargar</h2>
+    <p class="done-file" data-done-file></p>
+    <p class="done-note" data-done-note></p>
+    <div class="result-pages" data-result></div>
+    <p class="result-note" data-result-note></p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#" data-download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="m7 10.5 5 5 5-5"/><path d="M5 20h14"/></svg>Descargar</a>
+      <button type="button" class="btn btn-quiet" data-adjust>Volver a las opciones</button>
+      <button type="button" class="btn btn-quiet" data-restart>Empezar con otro archivo</button>
+    </div>
+  </section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Sin anuncios y sin cuentas. Casi todo pasa en tu navegador; las conversiones con Word, Excel, PowerPoint, HTML y PDF/A usan nuestro servidor y borran tu archivo al terminar.</p>
+    <ul class="footer-links">
+      <li><a href="../">Todas las herramientas</a></li>
+      <li><a href="../privacidad/">Privacidad</a></li>
+      <li><a href="../terminos/">Términos y créditos</a></li>
+      <li><a href="https://github.com/jordanpv541/pdf-jmpvlab" rel="noopener">Código fuente</a></li>
+    </ul>
+  </div>
+</footer>
+</body>
+</html>
