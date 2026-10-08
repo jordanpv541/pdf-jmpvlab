@@ -20,7 +20,11 @@ jobs:
       - run: python -m pytest server/tests -q
 
   docker:
-    runs-on: ubuntu-latest
+    # Oracle Ampere es ARM (arm64): se prueba en las dos arquitecturas.
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
       - name: Construir la imagen de la API
