@@ -1,0 +1,35 @@
+"""Pruebas en el navegador: prueba tema. Se corren con tests/e2e/run.py."""
+from playwright.sync_api import sync_playwright
+from comun import API, BASE, FX, salida
+OUT = salida('tema')
+res=[]
+def check(n,c,d=''): res.append(bool(c)); print(('OK  ' if c else 'FAIL'), n, d)
+with sync_playwright() as p:
+    b=p.chromium.launch()
+    ctx=b.new_context(color_scheme='light'); page=ctx.new_page(); errs=[]
+    page.on('console', lambda m: errs.append(m.text[:120]) if m.type=='error' else None)
+    page.on('pageerror', lambda e: errs.append(str(e)))
+    page.goto(BASE); page.wait_for_timeout(400)
+    bg = lambda: page.evaluate("getComputedStyle(document.body).backgroundColor")
+    check('sistema claro: tema claro', page.get_attribute('#theme-toggle','data-tema')=='light' and bg()=='rgb(244, 245, 247)', bg())
+    check('etiqueta ofrece oscuro', page.get_attribute('#theme-toggle','aria-label')=='Cambiar a modo oscuro')
+    page.click('#theme-toggle'); page.wait_for_timeout(300)
+    check('clic: pasa a oscuro', page.get_attribute('html','data-theme')=='dark' and bg()=='rgb(15, 20, 25)', bg())
+    check('etiqueta ofrece claro', page.get_attribute('#theme-toggle','aria-label')=='Cambiar a modo claro')
+    page.goto(BASE+'unir/'); page.wait_for_timeout(300)
+    check('se recuerda en otra página', page.get_attribute('html','data-theme')=='dark' and page.get_attribute('#theme-toggle','data-tema')=='dark', bg())
+    check('barra del navegador oscura', page.eval_on_selector_all('meta[name=theme-color]', 'ms => ms.every(m => m.content === "#0f1419")'))
+    page.click('#theme-toggle'); page.wait_for_timeout(300)
+    check('vuelve a claro', page.get_attribute('html','data-theme')=='light' and bg()=='rgb(244, 245, 247)')
+    page.screenshot(path=str(OUT / 't-header-light.png'), clip={'x':0,'y':0,'width':1280,'height':70})
+    page.click('#theme-toggle'); page.wait_for_timeout(400)
+    page.screenshot(path=str(OUT / 't-header-dark.png'), clip={'x':0,'y':0,'width':1280,'height':70})
+    ctx2=b.new_context(color_scheme='dark'); p2=ctx2.new_page(); p2.goto(BASE); p2.wait_for_timeout(300)
+    check('sistema oscuro sin elección: interruptor en oscuro', p2.get_attribute('#theme-toggle','data-tema')=='dark' and p2.get_attribute('html','data-theme') is None)
+    m=b.new_page(viewport={'width':360,'height':700}, device_scale_factor=2); m.goto(BASE); m.wait_for_timeout(300)
+    check('360 px sin desborde', not m.evaluate('document.documentElement.scrollWidth > innerWidth'))
+    m.screenshot(path=str(OUT / 't-header-360.png'), clip={'x':0,'y':0,'width':360,'height':70})
+    check('sin errores', not errs, errs[:3])
+    b.close()
+print(f'{sum(res)}/{len(res)} pruebas bien')
+raise SystemExit(0 if res and all(res) else 1)

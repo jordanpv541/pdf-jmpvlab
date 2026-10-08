@@ -23,6 +23,7 @@ import {
   toggleFor,
   zipBlob,
 } from '../app.js';
+import { cleanOutput, copyPagesClean } from '../pdf-clean.js';
 
 let state = null;
 
@@ -203,8 +204,9 @@ async function makePart(PDFDocument, indices) {
   const out = await PDFDocument.create();
   out.setProducer('PDF jmpvlab');
   out.setCreator('PDF jmpvlab');
-  const copied = await out.copyPages(state.doc, indices);
+  const copied = await copyPagesClean(out, state.doc, indices);
   copied.forEach((page) => out.addPage(page));
+  await cleanOutput(out);
   return out.save();
 }
 

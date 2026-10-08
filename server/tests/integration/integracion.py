@@ -162,7 +162,8 @@ def direccion_a_pdf():
         if last.status_code == 200:
             break
         time.sleep(5)
-    expect_pdf_with(last, "Example Domain")
+    # El título de example.com no siempre sale al extraer el texto del PDF: se busca el párrafo.
+    expect_pdf_with(last, "documentation examples")
 
 
 @check

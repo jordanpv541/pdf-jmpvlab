@@ -145,6 +145,7 @@ export function createSteps(root) {
       statusEl.textContent = message || '';
       statusEl.className = `status ${message ? `is-${kind}` : ''}`;
       statusEl.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+      statusEl.setAttribute('aria-live', kind === 'error' ? 'assertive' : 'polite');
     },
     error(message) {
       api.status(message, 'error');
@@ -205,21 +206,37 @@ export function pdfBlob(bytes) {
   return new Blob([bytes], { type: 'application/pdf' });
 }
 
+/**
+ * Arma un ZIP sin comprimir (las imágenes y los PDF ya vienen comprimidos).
+ * Cada entrada trae `bytes` (Uint8Array) o `blob`. Se arma por partes: cada archivo se
+ * lee y se pasa al ZIP de a uno, así un PDF con muchas páginas no llena la memoria del celular.
+ */
 export async function zipBlob(entries) {
-  const { zipSync } = await import(new URL('fflate/fflate.js', VENDOR).href);
-  const data = {};
+  const { Zip, ZipPassThrough } = await import(new URL('fflate/fflate.js', VENDOR).href);
+  const parts = [];
+  let failure = null;
+  const zip = new Zip((error, chunk) => {
+    if (error) failure = error;
+    else parts.push(new Blob([chunk]));
+  });
   const used = new Set();
-  for (const { name, bytes } of entries) {
-    let unique = name;
+  for (const entry of entries) {
+    let unique = entry.name;
     let n = 2;
     while (used.has(unique)) {
-      unique = name.replace(/(\.[^.]+)$/, `-${n}$1`);
+      unique = entry.name.replace(/(\.[^.]+)$/, `-${n}$1`);
       n += 1;
     }
     used.add(unique);
-    data[unique] = [bytes, { level: 0 }];
+    const file = new ZipPassThrough(unique);
+    zip.add(file);
+    const bytes = entry.bytes || new Uint8Array(await entry.blob.arrayBuffer());
+    file.push(bytes, true);
+    if (failure) throw failure;
   }
-  return new Blob([zipSync(data)], { type: 'application/zip' });
+  zip.end();
+  if (failure) throw failure;
+  return new Blob(parts, { type: 'application/zip' });
 }
 
 export function pad(n, width) {
@@ -234,14 +251,59 @@ export function getPdfLib() {
   return pdfLibPromise;
 }
 
+// Si alguno de los PDF abiertos tiene firma digital, se avisa que al guardarlo deja de valer.
+let signedLoaded = false;
+
+/** true si el PDF tiene al menos una firma digital (un campo de firma con valor). */
+export function hasDigitalSignature(doc, PDFLib) {
+  const { PDFArray, PDFDict, PDFName } = PDFLib;
+  const form = doc.catalog.lookup(PDFName.of('AcroForm'));
+  if (!(form instanceof PDFDict)) return false;
+  const stack = [];
+  const fields = form.lookup(PDFName.of('Fields'));
+  if (fields instanceof PDFArray) for (let i = 0; i < fields.size(); i += 1) stack.push([fields.lookup(i), 0]);
+  let checked = 0;
+  while (stack.length && checked < 5000) {
+    const [field, depth] = stack.pop();
+    checked += 1;
+    if (!(field instanceof PDFDict) || depth > 32) continue;
+    if (field.get(PDFName.of('FT')) === PDFName.of('Sig') && field.get(PDFName.of('V')) !== undefined) return true;
+    const kids = field.lookup(PDFName.of('Kids'));
+    if (kids instanceof PDFArray) for (let i = 0; i < kids.size(); i += 1) stack.push([kids.lookup(i), depth + 1]);
+  }
+  return false;
+}
+
 /** Abre un PDF con pdf-lib y traduce los errores a mensajes claros. */
 export async function loadPdf(bytes, fileName) {
   const PDFLib = await getPdfLib();
+  let doc;
   try {
-    return await PDFLib.PDFDocument.load(bytes, { updateMetadata: false });
+    doc = await PDFLib.PDFDocument.load(bytes, { updateMetadata: false });
   } catch (error) {
     throw friendlyPdfError(error, fileName);
   }
+  try {
+    if (hasDigitalSignature(doc, PDFLib)) signedLoaded = true;
+  } catch {
+    /* si no se puede revisar, no se avisa */
+  }
+  return doc;
+}
+
+function showSignedNote(root) {
+  const work = $('[data-step="work"]', root);
+  if (!work) return;
+  let note = $('[data-signed-note]', work);
+  if (!note) {
+    note = document.createElement('p');
+    note.className = 'signed-note';
+    note.dataset.signedNote = '';
+    note.textContent =
+      'Este PDF tiene una firma digital. Al guardar los cambios, la firma deja de ser válida: quien lo reciba verá que el documento fue modificado.';
+    work.prepend(note);
+  }
+  note.hidden = !signedLoaded;
 }
 
 export function friendlyPdfError(error, fileName = 'el archivo') {
@@ -555,6 +617,37 @@ export function toggleFor(attr, value, root = document) {
 
 /* ---------- Inicio común ---------- */
 
+/** Aviso discreto cuando hay una versión nueva del sitio esperando. */
+function offerUpdate(worker) {
+  if (document.querySelector('.update-toast')) return;
+  const box = document.createElement('div');
+  box.className = 'update-toast';
+  box.setAttribute('role', 'status');
+  const text = document.createElement('p');
+  text.textContent = 'Hay una versión nueva del sitio. Al actualizar se recarga la página.';
+  const go = document.createElement('button');
+  go.type = 'button';
+  go.className = 'btn btn-primary btn-small';
+  go.innerHTML = `${icons.refresh}Actualizar`;
+  const later = document.createElement('button');
+  later.type = 'button';
+  later.className = 'btn btn-quiet btn-small';
+  later.textContent = 'Ahora no';
+  go.addEventListener('click', () => {
+    wantReload = true;
+    go.disabled = true;
+    worker.postMessage('actualizar');
+  });
+  later.addEventListener('click', () => box.remove());
+  const actions = document.createElement('div');
+  actions.className = 'update-actions';
+  actions.append(go, later);
+  box.append(text, actions);
+  document.body.append(box);
+}
+
+let wantReload = false;
+
 function registerServiceWorker() {
   if (document.querySelector('meta[name="pdf-preview"]')) return;
   try {
@@ -562,7 +655,28 @@ function registerServiceWorker() {
     const secure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
     if (!secure) return;
     const url = new URL('../../sw.js', import.meta.url);
-    navigator.serviceWorker.register(url, { scope: new URL('../../', import.meta.url).pathname }).catch(() => {});
+    // Solo se recarga si la persona pidió actualizar.
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (wantReload) {
+        wantReload = false;
+        location.reload();
+      }
+    });
+    navigator.serviceWorker
+      .register(url, { scope: new URL('../../', import.meta.url).pathname })
+      .then((registration) => {
+        const offer = (worker) => {
+          if (worker && navigator.serviceWorker.controller) offerUpdate(worker);
+        };
+        offer(registration.waiting);
+        registration.addEventListener('updatefound', () => {
+          const worker = registration.installing;
+          worker?.addEventListener('statechange', () => {
+            if (worker.state === 'installed') offer(worker);
+          });
+        });
+      })
+      .catch(() => {});
   } catch {
     /* algunos marcos no permiten el modo sin conexión */
   }
@@ -689,6 +803,7 @@ export function setupTool({ kind = 'pdf', multiple = false, onFiles, onRestart }
     },
     /** Muestra el paso de opciones y lleva el foco a su título. */
     showWork() {
+      showSignedNote(root);
       steps.show('work');
       const heading = $('[data-step="work"] [data-focus]', root);
       heading?.focus({ preventScroll: false });
@@ -717,6 +832,7 @@ export function setupTool({ kind = 'pdf', multiple = false, onFiles, onRestart }
   };
 
   $('[data-restart]', root)?.addEventListener('click', () => {
+    signedLoaded = false;
     steps.clear();
     steps.progress(null);
     onRestart?.();

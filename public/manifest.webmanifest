@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "PDF jmpvlab",
   "short_name": "PDF jmpvlab",
   "description": "Herramientas PDF gratis, sin anuncios y sin cuentas. Casi todo pasa en tu navegador.",
@@ -9,14 +10,57 @@
   "background_color": "#f4f5f7",
   "theme_color": "#f4f5f7",
   "icons": [
-    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
-    { "name": "Unir PDF", "url": "unir/" },
-    { "name": "Dividir PDF", "url": "dividir/" },
-    { "name": "JPG a PDF", "url": "jpg-a-pdf/" },
-    { "name": "PDF a JPG", "url": "pdf-a-jpg/" }
+    {
+      "name": "Unir PDF",
+      "url": "unir/"
+    },
+    {
+      "name": "Dividir PDF",
+      "url": "dividir/"
+    },
+    {
+      "name": "JPG a PDF",
+      "url": "jpg-a-pdf/"
+    },
+    {
+      "name": "PDF a JPG",
+      "url": "pdf-a-jpg/"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/screenshots/inicio-celular.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Inicio: buscador y herramientas"
+    },
+    {
+      "src": "assets/screenshots/inicio-computadora.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Inicio en la computadora"
+    }
   ]
 }

@@ -3,6 +3,8 @@
 //   node tools/build.mjs                 → escribe en public/ (lo que se sube al hosting)
 //   node tools/build.mjs --preview DIR   → copia el sitio a DIR con enlaces a index.html,
 //                                          para verlo donde no hay URLs limpias
+//   node tools/build.mjs --out DIR       → genera una copia completa en DIR sin tocar public/
+//                                          (las pruebas la usan con PDF_SERVER_READY=1)
 //
 // Después de generar el HTML crea sw.js con la lista de archivos y una versión
 // calculada a partir de su contenido.
@@ -17,9 +19,46 @@ import { groups, searchWords, site, tools } from './site.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = join(ROOT, 'public');
 
+/** Herramienta del servidor que todavía no se puede usar. */
+const isSoon = (t) => Boolean(t.server) && !site.serverReady;
+
+/**
+ * Política de seguridad (CSP): una sola fuente para la cabecera de .htaccess y para la
+ * etiqueta <meta> de cada página. La etiqueta protege también cuando el hosting entrega
+ * el HTML sin pasar por .htaccess.
+ */
+function csp({ meta = false } = {}) {
+  const api = new URL(site.apiUrl).origin;
+  const rules = [
+    "default-src 'self'",
+    // 'wasm-unsafe-eval' lo necesitan PDF.js, qpdf y el OCR para su WebAssembly.
+    "script-src 'self' 'wasm-unsafe-eval'",
+    "style-src 'self'",
+    "img-src 'self' blob: data:",
+    "font-src 'self' data:",
+    `connect-src 'self' ${api} blob: data:`,
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'none'",
+  ];
+  // frame-ancestors no vale dentro de <meta>: solo va en la cabecera.
+  if (!meta) rules.push("frame-ancestors 'none'");
+  return rules.join('; ');
+}
+
+/** Datos estructurados (JSON-LD) para buscadores. No es código: la CSP no lo bloquea. */
+function jsonLd(data) {
+  const json = JSON.stringify({ '@context': 'https://schema.org', ...data }).replace(/</g, '\\u003c');
+  return `\n<script type="application/ld+json">${json}</script>`;
+}
+
 const args = process.argv.slice(2);
 const previewIndex = args.indexOf('--preview');
 const previewDir = previewIndex >= 0 ? args[previewIndex + 1] : null;
+const outIndex = args.indexOf('--out');
+const outDir = outIndex >= 0 ? args[outIndex + 1] : null;
 
 /* ---------- Plantillas ---------- */
 
@@ -32,14 +71,14 @@ function makeLinker(prefix, preview) {
   };
 }
 
-function layout({ prefix, path, title, metaDesc, main, script, preview, noindex = false, server = false, after = '' }) {
+function layout({ prefix, path, title, metaDesc, main, script, preview, noindex = false, server = false, after = '', data = null }) {
   const link = makeLinker(prefix, preview);
   const asset = (p) => `${prefix}${p}`;
   const canonical = `${site.url}/${path}`;
   return `<!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8">${preview ? '' : `\n<meta http-equiv="Content-Security-Policy" content="${csp({ meta: true })}">`}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <meta name="description" content="${metaDesc}">
@@ -63,7 +102,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <link rel="preload" href="${asset('assets/fonts/bricolage-grotesque-latin.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${asset('assets/css/styles.css')}">
 <script src="${asset('assets/js/theme.js')}"></script>
-${script ? `<script type="module" src="${asset(script)}"></script>` : ''}
+${script ? `<script type="module" src="${asset(script)}"></script>` : ''}${data && !preview && !noindex ? jsonLd(data) : ''}
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -106,13 +145,18 @@ function tile(t, link) {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
+  const tag = isSoon(t)
+    ? `\n                <span class="tile-tag">${icons.clock}Muy pronto</span>`
+    : t.server
+      ? `\n                <span class="tile-tag">${icons.server}Usa nuestro servidor</span>`
+      : '';
   return `
           <li>
-            <a class="tile" href="${link(`${t.slug}/`)}" data-search="${words}">
+            <a class="tile${isSoon(t) ? ' is-soon' : ''}" href="${link(`${t.slug}/`)}" data-search="${words}">
               <span class="tile-icon">${icons[t.slug]}</span>
               <span class="tile-text">
                 <span class="tile-name">${t.name}</span>
-                <span class="tile-desc">${t.desc}</span>${t.server ? `\n                <span class="tile-tag">${icons.server}Usa nuestro servidor</span>` : ''}
+                <span class="tile-desc">${t.desc}</span>${tag}
               </span>
             </a>
           </li>`;
@@ -168,13 +212,13 @@ function homeMain(link) {
         <span class="where-icon">${icons.device}</span>
         <h3>En tu navegador</h3>
         <p class="where-count">${local} herramientas</p>
-        <p>El archivo no sale de tu equipo. Después de la primera visita funcionan incluso sin internet.</p>
+        <p>El archivo no sale de tu equipo. Después de la primera visita funcionan incluso sin internet (el OCR, después de usarlo una vez).</p>
       </div>
       <div class="where-item">
         <span class="where-icon">${icons.server}</span>
         <h3>En nuestro servidor</h3>
         <p class="where-count">${remote} conversiones</p>
-        <p>Word, Excel, PowerPoint, HTML y PDF/A. El archivo viaja cifrado y se borra apenas termina.</p>
+        <p>${site.serverReady ? 'Word, Excel, PowerPoint, HTML y PDF/A. El archivo viaja cifrado y se borra apenas termina.' : 'Word, Excel, PowerPoint, HTML y PDF/A. Muy pronto: estamos terminando de montar el servidor.'}</p>
       </div>
     </div>
     <p class="where-more"><a href="${link('privacidad/')}">Cómo cuidamos tus archivos</a></p>
@@ -184,8 +228,9 @@ function homeMain(link) {
 
 /** Otras herramientas del mismo grupo (y si faltan, de otros), al pie de cada herramienta. */
 function relatedAside(tool, link) {
-  const same = tools.filter((t) => t.group === tool.group && t.slug !== tool.slug);
-  const others = tools.filter((t) => t.group !== tool.group);
+  const usable = tools.filter((t) => !isSoon(t) && t.slug !== tool.slug);
+  const same = usable.filter((t) => t.group === tool.group);
+  const others = usable.filter((t) => t.group !== tool.group);
   const picks = same.concat(others).slice(0, 4);
   return `
 <aside class="related wrap" aria-labelledby="related-title">
@@ -195,7 +240,29 @@ function relatedAside(tool, link) {
 </aside>`;
 }
 
+/** Herramienta del servidor mientras el servidor no está listo: aviso en vez de la zona de carga. */
+function soonMain(tool, link) {
+  return `<main id="main" class="tool" data-tool="${tool.slug}">
+  <a class="back" href="${link('')}#herramientas">${icons.back}Todas las herramientas</a>
+  <div class="tool-head">
+    <span class="tool-icon">${icons[tool.slug]}</span>
+    <div>
+      <h1>${tool.name}</h1>
+      <p class="lede">${tool.lede}</p>
+    </div>
+  </div>
+
+  <section class="soon-panel" aria-labelledby="soon-title">
+    <span class="soon-icon">${icons.clock}</span>
+    <h2 id="soon-title">Muy pronto</h2>
+    <p>Esta conversión necesita nuestro servidor, que estamos terminando de montar. Cuando esté listo vas a poder usarla aquí mismo, gratis y sin cuentas.</p>
+    <p>Mientras tanto, abajo tienes herramientas que ya funcionan en tu navegador.</p>
+  </section>
+</main>`;
+}
+
 function toolMain(tool, link, preview) {
+  if (isSoon(tool)) return soonMain(tool, link);
   const previewNote = preview
     ? '\n    <p class="preview-note">Esto es una vista previa: aquí el botón de descarga está bloqueado. En el sitio publicado funciona normal.</p>'
     : '';
@@ -236,7 +303,7 @@ function toolMain(tool, link, preview) {
   </section>
 
   <div class="progress" data-progress hidden>
-    <progress max="1" value="0"></progress>
+    <progress max="1" value="0" aria-label="Avance"></progress>
     <p class="progress-text" aria-live="polite"></p>
   </div>
   <p class="status" data-status role="status" aria-live="polite"></p>
@@ -263,7 +330,8 @@ function proseMain(html) {
 function privacyHtml(link) {
   const contact = site.contactEmail
     ? `<p>Si tienes preguntas sobre esta política, escribe a <a href="mailto:${site.contactEmail}">${site.contactEmail}</a>.</p>`
-    : '';
+    : `<h2>Dudas o problemas</h2>
+  <p>Escríbenos en los <a href="${site.issuesUrl}" rel="noopener">temas del repositorio en GitHub</a> (necesitas una cuenta gratis de GitHub). No pegues ahí datos personales ni archivos privados: lo que se escribe es público.</p>`;
   const local = tools.filter((t) => !t.server).map((t) => t.name);
   const remote = tools.filter((t) => t.server).map((t) => t.name);
   const list = (names) => names.slice(0, -1).join(', ') + ' y ' + names[names.length - 1];
@@ -276,7 +344,7 @@ function privacyHtml(link) {
   <p>Puedes comprobarlo: después de cargar una de estas herramientas, desconéctate de internet y verás que sigue funcionando.</p>
 
   <h2>Herramientas que usan nuestro servidor</h2>
-  <p>${list(remote)} necesitan programas que no caben en un navegador, así que usan nuestro servidor. Cada una lo avisa antes de elegir el archivo. Así funciona:</p>
+  <p>${list(remote)} necesitan programas que no caben en un navegador, así que usan nuestro servidor. Cada una lo avisa antes de elegir el archivo.${site.serverReady ? ' Así funciona:' : ' Todavía no están disponibles porque estamos terminando de montar el servidor. Así van a funcionar:'}</p>
   <ul>
     <li>Tu archivo viaja cifrado (HTTPS) hasta nuestro servidor en Oracle Cloud.</li>
     <li>Se convierte y el resultado vuelve a tu navegador en la misma conexión.</li>
@@ -353,6 +421,17 @@ function pagesFor(preview) {
       main: homeMain(home),
       script: 'assets/js/home.js',
       preview,
+      data: {
+        '@type': 'WebApplication',
+        name: site.name,
+        url: `${site.url}/`,
+        description: 'Herramientas PDF gratis, sin anuncios y sin cuentas. Casi todo pasa en tu navegador.',
+        applicationCategory: 'UtilitiesApplication',
+        operatingSystem: 'Cualquiera con un navegador moderno',
+        inLanguage: 'es',
+        isAccessibleForFree: true,
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      },
     }),
   });
 
@@ -367,9 +446,23 @@ function pagesFor(preview) {
         metaDesc: tool.metaDesc,
         main: toolMain(tool, link, preview),
         after: relatedAside(tool, link),
-        script: `assets/js/tools/${tool.server ? 'convertir' : tool.script || tool.slug}.js`,
-        server: tool.server,
+        // Las que aún no funcionan solo necesitan lo común (modo sin conexión, instalar).
+        script: isSoon(tool) ? 'assets/js/home.js' : `assets/js/tools/${tool.server ? 'convertir' : tool.script || tool.slug}.js`,
+        server: tool.server && !isSoon(tool),
+        noindex: isSoon(tool),
         preview,
+        data: {
+          '@type': 'WebApplication',
+          name: tool.name,
+          url: `${site.url}/${tool.slug}/`,
+          description: tool.metaDesc,
+          applicationCategory: 'UtilitiesApplication',
+          operatingSystem: 'Cualquiera con un navegador moderno',
+          inLanguage: 'es',
+          isAccessibleForFree: true,
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+          isPartOf: { '@type': 'WebSite', name: site.name, url: `${site.url}/` },
+        },
       }),
     });
   }
@@ -446,105 +539,135 @@ const toUrlPath = (file, base) => relative(base, file).split(sep).join('/');
 
 /**
  * sw.js: guarda una copia del sitio para usarlo sin conexión.
- * Las páginas y lo esencial se guardan al instalar; lo pesado de PDF.js
- * (mapas de caracteres, fuentes estándar, wasm) se guarda cuando se usa.
+ *
+ * - Cada versión del sitio tiene su propia copia (páginas, estilos y código). Todo sale de
+ *   esa copia, así una página nunca mezcla archivos de dos versiones.
+ * - Las librerías (vendor/) van en otra copia que solo cambia cuando cambian ellas: una
+ *   actualización del sitio no vuelve a bajar 4 MB ni borra el OCR ya guardado.
+ * - Una versión nueva espera a que la persona toque «Actualizar» (o cierre el sitio).
+ * - Con «ahorro de datos» activado, las librerías se guardan recién cuando se usan.
  */
 async function writeServiceWorker(dir, preview) {
-  const files = (await listFiles(dir)).filter((f) => !/(^|\/)(sw\.js|\.htaccess|404\.html|robots\.txt|sitemap\.xml)$/.test(toUrlPath(f, dir)));
-  const rel = files.map((f) => toUrlPath(f, dir)).sort();
+  const skip = /(^|\/)(sw\.js|\.htaccess|404\.html|robots\.txt|sitemap\.xml)$/;
+  const files = (await listFiles(dir)).filter((f) => !skip.test(toUrlPath(f, dir))).sort();
+  const rel = files.map((f) => toUrlPath(f, dir));
 
   // Lo pesado o poco usado se guarda la primera vez que se usa, no al instalar.
   const lazy = (p) =>
     /^vendor\/pdfjs\/(cmaps|standard_fonts|iccs|wasm)\//.test(p) ||
     /^vendor\/tesseract\//.test(p) ||
+    /^assets\/screenshots\//.test(p) ||
     /LICENSE|NOTICE|OFL\.txt|og-image/.test(p);
-  const precache = rel
-    .filter((p) => !lazy(p))
-    .map((p) => {
-      if (preview) return p;
-      if (p === 'index.html') return './';
-      if (p.endsWith('/index.html')) return p.slice(0, -'index.html'.length);
-      return p;
-    });
+  const isLib = (p) => p.startsWith('vendor/');
+  const pageUrl = (p) => {
+    if (preview) return p;
+    if (p === 'index.html') return './';
+    if (p.endsWith('/index.html')) return p.slice(0, -'index.html'.length);
+    return p;
+  };
+  const shell = rel.filter((p) => !lazy(p) && !isLib(p)).map(pageUrl);
+  const libs = rel.filter((p) => !lazy(p) && isLib(p));
 
-  const hash = createHash('sha256');
-  for (const f of files.sort()) hash.update(toUrlPath(f, dir)).update(await readFile(f));
-  const version = hash.digest('hex').slice(0, 12);
+  const all = createHash('sha256');
+  const vendor = createHash('sha256');
+  for (const f of files) {
+    const path = toUrlPath(f, dir);
+    const bytes = await readFile(f);
+    all.update(path).update(bytes);
+    if (isLib(path)) vendor.update(path).update(bytes);
+  }
+  const version = all.digest('hex').slice(0, 12);
+  const libsVersion = vendor.digest('hex').slice(0, 12);
 
   const sw = `// Generado por tools/build.mjs. No lo edites a mano.
 const VERSION = '${version}';
-const CACHE = 'pdf-jmpvlab-' + VERSION;
-const RUNTIME = 'pdf-jmpvlab-runtime-' + VERSION;
-const PRECACHE = ${JSON.stringify(precache, null, 2)};
+const SHELL = 'pdf-jmpvlab-' + VERSION;
+const LIBS = 'pdf-jmpvlab-libs-${libsVersion}';
+const SHELL_FILES = ${JSON.stringify(shell, null, 2)};
+const LIB_FILES = ${JSON.stringify(libs, null, 2)};
+
+// Pide el archivo al servidor, sin usar la caché del navegador (puede ser de otra versión).
+function fresh(path) {
+  return fetch(new Request(path, { cache: 'reload' })).then((response) => {
+    if (!response.ok) throw new Error(path + ' ' + response.status);
+    return response;
+  });
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE).then((cache) =>
-      Promise.all(
-        PRECACHE.map((path) =>
-          fetch(new Request(path, { cache: 'reload' })).then((response) => {
-            if (!response.ok) throw new Error(path + ' ' + response.status);
-            return cache.put(path, response);
+    (async () => {
+      const shell = await caches.open(SHELL);
+      await Promise.all(SHELL_FILES.map(async (path) => shell.put(path, await fresh(path))));
+      const saveData = Boolean(self.navigator.connection && self.navigator.connection.saveData);
+      if (!saveData) {
+        const libs = await caches.open(LIBS);
+        await Promise.all(
+          LIB_FILES.map(async (path) => {
+            if (await libs.match(path)) return;
+            await libs.put(path, await fresh(path));
           })
-        )
-      )
-    ).then(() => self.skipWaiting())
+        );
+      }
+      // Las versiones anteriores a este sistema no saben mostrar el aviso de «Actualizar»:
+      // si la que funciona ahora es una de esas, la nueva entra de una vez.
+      const keys = await caches.keys();
+      if (keys.some((key) => key.startsWith('pdf-jmpvlab-runtime-'))) await self.skipWaiting();
+    })()
   );
+});
+
+// La página pide activar la versión nueva cuando la persona toca «Actualizar».
+self.addEventListener('message', (event) => {
+  if (event.data === 'actualizar') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key.startsWith('pdf-jmpvlab-') && key !== CACHE && key !== RUNTIME).map((key) => caches.delete(key)))
-    ).then(() => self.clients.claim())
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys.filter((key) => key.startsWith('pdf-jmpvlab-') && key !== SHELL && key !== LIBS).map((key) => caches.delete(key))
+      );
+      await self.clients.claim();
+    })()
   );
 });
+
+async function respond(request, url) {
+  const shell = await caches.open(SHELL);
+  const libs = await caches.open(LIBS);
+  const hit = (await shell.match(request, { ignoreSearch: true })) || (await libs.match(request, { ignoreSearch: true }));
+  if (hit) return hit;
+  try {
+    // Sin copia guardada: a la red. Para archivos se pide revisar que la copia del
+    // navegador siga vigente, porque el hosting la guarda por un año.
+    const response = request.mode === 'navigate' ? await fetch(request) : await fetch(request, { cache: 'no-cache' });
+    if (response.ok && url.pathname.includes('/vendor/')) await libs.put(request, response.clone());
+    return response;
+  } catch (error) {
+    if (request.mode === 'navigate') {
+      const home = await shell.match('./');
+      if (home) return home;
+    }
+    throw error;
+  }
+}
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
-
-  // Páginas: primero la red, para ver cambios; sin conexión, la copia.
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() =>
-          caches.match(request, { ignoreSearch: true }).then((hit) => hit || caches.match(new URL('./', self.location).href))
-        )
-    );
-    return;
-  }
-
-  // Archivos del sitio: primero la copia guardada.
-  event.respondWith(
-    caches.match(request, { ignoreSearch: true }).then((hit) => {
-      if (hit) return hit;
-      return fetch(request).then((response) => {
-        if (response.ok && url.pathname.includes('/vendor/')) {
-          const copy = response.clone();
-          caches.open(RUNTIME).then((cache) => cache.put(request, copy));
-        }
-        return response;
-      });
-    })
-  );
+  event.respondWith(respond(request, url));
 });
 `;
   await writeFile(join(dir, 'sw.js'), sw);
-  return { version, count: precache.length };
+  return { version, count: shell.length + libs.length };
 }
 
 async function writeSitemap(dir) {
-  const urls = ['', ...tools.map((t) => `${t.slug}/`), 'privacidad/', 'terminos/'];
+  const urls = ['', ...tools.filter((t) => !isSoon(t)).map((t) => `${t.slug}/`), 'privacidad/', 'terminos/'];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map((u) => `  <url><loc>${site.url}/${u}</loc></url>`).join('\n')}
@@ -554,12 +677,11 @@ ${urls.map((u) => `  <url><loc>${site.url}/${u}</loc></url>`).join('\n')}
   await writeFile(join(dir, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
 }
 
-// La página solo puede conectarse a su propio dominio y al servidor de conversiones.
+// La cabecera CSP de .htaccess sale de la misma función que la etiqueta <meta>.
 async function syncCsp(dir) {
   const file = join(dir, '.htaccess');
-  const origin = new URL(site.apiUrl).origin;
   const text = await readFile(file, 'utf8');
-  const next = text.replace(/connect-src [^;"]*/, `connect-src 'self' ${origin} blob: data:`);
+  const next = text.replace(/(Header always set Content-Security-Policy )"[^"]*"/, `$1"${csp()}"`);
   if (next === text) return;
   await writeFile(file, next);
 }
@@ -590,9 +712,15 @@ if (previewDir) {
   // La vista previa no lleva modo sin conexión: se publica en un servidor ajeno.
   console.log(`Vista previa en ${previewDir}`);
 } else {
-  await writePages(PUBLIC, false);
-  await writeSitemap(PUBLIC);
-  await syncCsp(PUBLIC);
-  const { version, count } = await writeServiceWorker(PUBLIC, false);
-  console.log(`Sitio generado en public/ (sw ${version}, ${count} archivos en caché inicial)`);
+  let target = PUBLIC;
+  if (outDir) {
+    if (await exists(outDir)) await rm(outDir, { recursive: true });
+    await cp(PUBLIC, outDir, { recursive: true });
+    target = outDir;
+  }
+  await writePages(target, false);
+  await writeSitemap(target);
+  await syncCsp(target);
+  const { version, count } = await writeServiceWorker(target, false);
+  console.log(`Sitio generado en ${outDir || 'public/'} (sw ${version}, ${count} archivos en caché inicial)`);
 }

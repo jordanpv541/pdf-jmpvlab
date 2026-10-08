@@ -100,7 +100,7 @@ runButton.addEventListener('click', () =>
       canvas.height = 0;
       const name = `${base}-pagina-${pad(n, width)}.${ext}`;
       if (list.length === 1) single = { blob, name };
-      else entries.push({ name, bytes: new Uint8Array(await blob.arrayBuffer()) });
+      else entries.push({ name, blob }); // el ZIP lee cada imagen recién al armarse
     }
 
     if (single) {
@@ -222,9 +222,6 @@ async function extractImages(list, { type, ext, base }) {
     return;
   }
   tool.steps.progress(list.length, list.length, 'Preparando el ZIP…');
-  const files = [];
-  for (let i = 0; i < entries.length; i += 1) {
-    files.push({ name: `${base}-imagen-${pad(i + 1, width)}.${ext}`, bytes: new Uint8Array(await entries[i].blob.arrayBuffer()) });
-  }
+  const files = entries.map((entry, i) => ({ name: `${base}-imagen-${pad(i + 1, width)}.${ext}`, blob: entry.blob }));
   tool.finish(await zipBlob(files), `${base}-imagenes.zip`, { files: files.length });
 }

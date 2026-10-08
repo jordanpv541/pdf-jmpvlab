@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' https://api-pdf.jmpvlab.com blob: data:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Censurar PDF y tapar datos privados gratis | PDF jmpvlab</title>
 <meta name="description" content="Tapa y borra de verdad datos privados de un PDF desde tu navegador. Gratis, sin anuncios y sin subir tus archivos.">
@@ -26,6 +27,7 @@
 <link rel="stylesheet" href="../assets/css/styles.css">
 <script src="../assets/js/theme.js"></script>
 <script type="module" src="../assets/js/tools/censurar.js"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Censurar PDF","url":"https://pdf.jmpvlab.com/censurar/","description":"Tapa y borra de verdad datos privados de un PDF desde tu navegador. Gratis, sin anuncios y sin subir tus archivos.","applicationCategory":"UtilitiesApplication","operatingSystem":"Cualquiera con un navegador moderno","inLanguage":"es","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"isPartOf":{"@type":"WebSite","name":"PDF jmpvlab","url":"https://pdf.jmpvlab.com/"}}</script>
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
@@ -66,7 +68,7 @@
 
   <section class="step" data-step="work" hidden aria-label="Opciones">
       <p class="file-summary" tabindex="-1" data-focus data-summary></p>
-      <p class="field-help hint">Arrastra sobre la página para dibujar un recuadro. Toca la × de un recuadro para quitarlo.</p>
+      <p class="field-help hint">Arrastra sobre la página para dibujar un recuadro, o toca «Agregar recuadro» y muévelo con las flechas del teclado (Mayús y flechas cambia su tamaño). Toca la × de un recuadro para quitarlo.</p>
       <figure class="live-preview redact-figure">
         <div class="crop-stage">
           <div class="redact-stage" data-stage></div>
@@ -79,6 +81,7 @@
       </figure>
       <div class="list-tools">
         <span class="field-help" data-boxes-count aria-live="polite"></span>
+        <button type="button" class="btn btn-quiet btn-small" data-add-box>Agregar recuadro</button>
         <button type="button" class="btn btn-quiet btn-small" data-clear-page>Quitar los recuadros de esta página</button>
       </div>
       <div class="options">
@@ -92,7 +95,7 @@
   </section>
 
   <div class="progress" data-progress hidden>
-    <progress max="1" value="0"></progress>
+    <progress max="1" value="0" aria-label="Avance"></progress>
     <p class="progress-text" aria-live="polite"></p>
   </div>
   <p class="status" data-status role="status" aria-live="polite"></p>

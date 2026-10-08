@@ -1,0 +1,4 @@
+# Pruebas del sitio en el navegador (tests/e2e/run.py)
+playwright==1.56.0
+pypdf==5.9.0
+pymupdf==1.28.2

@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; font-src 'self' data:; connect-src 'self' https://api-pdf.jmpvlab.com blob: data:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacidad | PDF jmpvlab</title>
 <meta name="description" content="Cómo trata PDF jmpvlab tus archivos y tus datos: todo se procesa en tu navegador.">
@@ -44,14 +45,14 @@
 </header>
 <main id="main" class="prose">
   <h1>Privacidad</h1>
-  <p class="updated">Última actualización: 6 de octubre de 2026</p>
+  <p class="updated">Última actualización: 8 de octubre de 2026</p>
 
   <h2>La mayoría de herramientas no sube tus archivos</h2>
   <p>Unir PDF, Dividir PDF, Organizar páginas, Eliminar páginas, Extraer páginas, Rotar PDF, Comprimir PDF, Reparar PDF, OCR PDF, JPG a PDF, Escanear a PDF, PDF a JPG, Números de página, Marca de agua, Recortar PDF, Firmar PDF, Censurar PDF, Proteger PDF y Desbloquear PDF funcionan dentro de tu navegador. El archivo se lee y se procesa en tu dispositivo: no se envía a ningún servidor, no lo vemos y no lo guardamos.</p>
   <p>Puedes comprobarlo: después de cargar una de estas herramientas, desconéctate de internet y verás que sigue funcionando.</p>
 
   <h2>Herramientas que usan nuestro servidor</h2>
-  <p>Word a PDF, Excel a PDF, PowerPoint a PDF, HTML a PDF, PDF a Word, PDF a Excel, PDF a PowerPoint y PDF a PDF/A necesitan programas que no caben en un navegador, así que usan nuestro servidor. Cada una lo avisa antes de elegir el archivo. Así funciona:</p>
+  <p>Word a PDF, Excel a PDF, PowerPoint a PDF, HTML a PDF, PDF a Word, PDF a Excel, PDF a PowerPoint y PDF a PDF/A necesitan programas que no caben en un navegador, así que usan nuestro servidor. Cada una lo avisa antes de elegir el archivo. Todavía no están disponibles porque estamos terminando de montar el servidor. Así van a funcionar:</p>
   <ul>
     <li>Tu archivo viaja cifrado (HTTPS) hasta nuestro servidor en Oracle Cloud.</li>
     <li>Se convierte y el resultado vuelve a tu navegador en la misma conexión.</li>
@@ -69,7 +70,8 @@
 
   <h2>Puedes revisar el código</h2>
   <p>Todo el código del sitio y del servidor es público, así que cualquiera puede comprobar lo que dice esta página: <a href="https://github.com/jordanpv541/pdf-jmpvlab" rel="noopener">github.com/jordanpv541/pdf-jmpvlab</a>.</p>
-  
+  <h2>Dudas o problemas</h2>
+  <p>Escríbenos en los <a href="https://github.com/jordanpv541/pdf-jmpvlab/issues" rel="noopener">temas del repositorio en GitHub</a> (necesitas una cuenta gratis de GitHub). No pegues ahí datos personales ni archivos privados: lo que se escribe es público.</p>
   <p><a href="../">Volver a las herramientas</a></p></main>
 <footer class="site-footer">
   <div class="wrap footer-row">

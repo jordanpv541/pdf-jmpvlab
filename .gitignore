@@ -5,3 +5,4 @@ __pycache__/
 server/.env
 preview/
 .DS_Store
+tests/e2e/.salidas/

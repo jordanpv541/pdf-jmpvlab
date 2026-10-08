@@ -17,7 +17,7 @@ import {
   renderPage,
   setupTool,
 } from '../app.js';
-import { runQpdf } from '../qpdf.js';
+import { protection, runQpdf } from '../qpdf.js';
 
 let state = null;
 
@@ -38,15 +38,27 @@ async function open([file]) {
   tool.showWork();
 }
 
-/** Revisa la estructura con qpdf: 'ok', 'problemas' o 'cifrado'. */
+/**
+ * Revisa el archivo con qpdf: 'ok', 'problemas', 'cifrado' (pide contraseña para abrirlo)
+ * o 'restringido' (se abre sin contraseña pero su autor le puso restricciones).
+ */
 async function diagnose(bytes) {
   try {
-    const { code, log } = await runQpdf(['--check', '/in.pdf'], { inputs: { '/in.pdf': bytes } });
-    if (log.some((line) => /password/i.test(line))) return 'cifrado';
+    const kind = await protection(bytes);
+    if (kind === 'user') return 'cifrado';
+    if (kind === 'owner') return 'restringido';
+    const { code } = await runQpdf(['--check', '/in.pdf'], { inputs: { '/in.pdf': bytes } });
     return code === 0 ? 'ok' : 'problemas';
   } catch {
     return 'problemas';
   }
+}
+
+/** Con restricciones: qpdf rehace la estructura y conserva la protección tal como estaba. */
+async function rebuildWithQpdf(bytes) {
+  const { code, files } = await runQpdf(['/in.pdf', '/out.pdf'], { inputs: { '/in.pdf': bytes }, outputs: ['/out.pdf'] });
+  if ((code !== 0 && code !== 3) || !files['/out.pdf']) throw new Error('qpdf');
+  return files['/out.pdf'];
 }
 
 async function rebuildWithPdfLib(bytes) {
@@ -97,6 +109,20 @@ runButton.addEventListener('click', () =>
     await nextFrame();
     const health = await diagnose(bytes);
     if (health === 'cifrado') throw new Error('Este PDF tiene contraseña. Quítasela primero con Desbloquear PDF.');
+    if (health === 'restringido') {
+      tool.steps.progress(0, 1, 'Reconstruyendo la estructura…');
+      await nextFrame();
+      let out;
+      try {
+        out = await rebuildWithQpdf(bytes);
+      } catch {
+        throw new Error(`No se pudo reparar «${file.name}». Prueba quitarle las restricciones con Desbloquear PDF y vuelve a intentarlo.`);
+      }
+      tool.finish(pdfBlob(out), `${baseName(file.name)}-reparado.pdf`, {
+        note: 'Este PDF tiene restricciones de su autor (por ejemplo, no imprimir). Rehicimos su estructura y las dejamos como estaban.',
+      });
+      return;
+    }
 
     tool.steps.progress(0, 1, 'Reconstruyendo la estructura…');
     await nextFrame();

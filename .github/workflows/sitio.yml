@@ -1,4 +1,5 @@
-# Sitio: que se genere sin cambios pendientes.
+# Sitio: que public/ esté al día con el código y que las herramientas funcionen en un
+# navegador de verdad (Chromium), incluida la prueba de que lo borrado no queda escondido.
 name: Sitio
 
 on:
@@ -17,3 +18,28 @@ jobs:
         with:
           node-version: "22"
       - run: node tools/build.mjs
+      - name: public/ coincide con lo que genera build.mjs
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            echo "::error::Falta correr node tools/build.mjs y subir los cambios de public/"
+            exit 1
+          fi
+
+  navegador:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Programas para revisar los PDF
+        run: sudo apt-get update && sudo apt-get install -y qpdf poppler-utils
+      - run: pip install -r tests/e2e/requirements.txt
+      - run: python -m playwright install --with-deps chromium
+      - name: Pruebas en el navegador
+        run: python tests/e2e/run.py

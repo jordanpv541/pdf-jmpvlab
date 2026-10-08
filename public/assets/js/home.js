@@ -58,14 +58,17 @@ for (const button of filters) {
   });
 }
 
-// La tecla «/» lleva al buscador, como en muchos sitios.
-document.addEventListener('keydown', (event) => {
-  if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
-  const target = event.target;
-  if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
-  event.preventDefault();
-  input?.focus();
-});
+// La tecla «/» lleva al buscador, como en muchos sitios. Solo donde hay buscador:
+// en las demás páginas «/» sigue sirviendo para buscar en la página (Firefox).
+if (input) {
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) return;
+    const target = event.target;
+    if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+    event.preventDefault();
+    input.focus();
+  });
+}
 
 // Si el navegador recuerda lo escrito al volver atrás, se aplica el filtro.
 if (input?.value) apply();

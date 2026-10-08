@@ -19,6 +19,7 @@ import {
   readBytes,
   setupTool,
 } from '../app.js';
+import { cleanOutput, copyPagesClean } from '../pdf-clean.js';
 
 let state = null;
 
@@ -141,8 +142,9 @@ runButton.addEventListener('click', () =>
     const out = await PDFDocument.create();
     out.setProducer('PDF jmpvlab');
     out.setCreator('PDF jmpvlab');
-    const copied = await out.copyPages(state.doc, keep);
+    const copied = await copyPagesClean(out, state.doc, keep);
     copied.forEach((page) => out.addPage(page));
+    await cleanOutput(out);
     const bytes = await out.save();
     tool.finish(pdfBlob(bytes), `${baseName(state.file.name)}-sin-paginas.pdf`);
   })

@@ -9,9 +9,15 @@ export const site = {
   url: 'https://pdf.jmpvlab.com',
   // Correo de contacto para la página de privacidad. Déjalo vacío para no mostrarlo.
   contactEmail: '',
-  updated: '6 de octubre de 2026',
+  updated: '8 de octubre de 2026',
   // Servidor de conversiones (fase 3). Se puede cambiar al generar: PDF_API_URL=... node tools/build.mjs
   apiUrl: process.env.PDF_API_URL || 'https://api-pdf.jmpvlab.com',
+  // ¿Ya funciona el servidor de conversiones? Mientras sea false, sus 8 herramientas se
+  // muestran como «Muy pronto», sin zona para subir archivos y fuera de Google.
+  // Cuando el servidor esté listo, cámbialo a true (o genera con PDF_SERVER_READY=1).
+  serverReady: process.env.PDF_SERVER_READY ? process.env.PDF_SERVER_READY === '1' : false,
+  // Para dudas o problemas: los temas (issues) del repositorio.
+  issuesUrl: 'https://github.com/jordanpv541/pdf-jmpvlab/issues',
   // Código fuente público (licencia AGPL)
   sourceUrl: 'https://github.com/jordanpv541/pdf-jmpvlab',
 };
@@ -394,7 +400,7 @@ export const tools = [
         </fieldset>
         ${checkbox('skip-text', 'Saltar las páginas que ya tienen texto', { checked: true })}
       </div>
-      <p class="field-help note">La primera vez se descarga el lector de texto (unos 6 MB, o 9 MB con los dos idiomas); después queda guardado en tu navegador. Cada página tarda unos segundos, más en celulares.</p>
+      <p class="field-help note">La primera vez se descarga el lector de texto (unos 6 MB, o 9 MB con los dos idiomas), así que necesitas internet; después queda guardado en tu navegador y funciona sin conexión. Cada página tarda unos segundos, más en celulares.</p>
       ${runButton('Reconocer texto')}`,
   },
   {
@@ -864,7 +870,7 @@ export const tools = [
     dropHint: 'o suéltalo aquí',
     work: `
       ${summary}
-      <p class="field-help hint">Arrastra sobre la página para dibujar un recuadro. Toca la × de un recuadro para quitarlo.</p>
+      <p class="field-help hint">Arrastra sobre la página para dibujar un recuadro, o toca «Agregar recuadro» y muévelo con las flechas del teclado (Mayús y flechas cambia su tamaño). Toca la × de un recuadro para quitarlo.</p>
       <figure class="live-preview redact-figure">
         <div class="crop-stage">
           <div class="redact-stage" data-stage></div>
@@ -873,6 +879,7 @@ export const tools = [
       </figure>
       <div class="list-tools">
         <span class="field-help" data-boxes-count aria-live="polite"></span>
+        <button type="button" class="btn btn-quiet btn-small" data-add-box>Agregar recuadro</button>
         <button type="button" class="btn btn-quiet btn-small" data-clear-page>Quitar los recuadros de esta página</button>
       </div>
       <div class="options">

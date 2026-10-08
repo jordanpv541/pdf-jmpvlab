@@ -16,6 +16,7 @@ import {
   readBytes,
   setupTool,
 } from '../app.js';
+import { cleanOutput, copyPagesClean } from '../pdf-clean.js';
 
 let state = null;
 
@@ -225,7 +226,8 @@ runButton.addEventListener('click', () =>
     const out = await PDFDocument.create();
     out.setProducer('PDF jmpvlab');
     out.setCreator('PDF jmpvlab');
-    const copied = await out.copyPages(
+    const copied = await copyPagesClean(
+      out,
       state.doc,
       order.map((p) => p.index)
     );
@@ -234,6 +236,7 @@ runButton.addEventListener('click', () =>
       page.setRotation(degrees(angle));
       out.addPage(page);
     });
+    await cleanOutput(out);
     const bytes = await out.save();
     tool.finish(pdfBlob(bytes), `${baseName(state.file.name)}-organizado.pdf`);
   })

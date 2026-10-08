@@ -35,6 +35,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header("Content-Security-Policy", CSP)
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()")
+        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+        self.send_header("X-Frame-Options", "DENY")
         self.send_header("Cache-Control", "no-cache")
         super().end_headers()
 

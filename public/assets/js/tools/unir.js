@@ -13,6 +13,7 @@ import {
   readBytes,
   setupTool,
 } from '../app.js';
+import { cleanOutput, copyPagesClean } from '../pdf-clean.js';
 
 let items = [];
 let nextId = 1;
@@ -153,7 +154,7 @@ runButton.addEventListener('click', () =>
     for (let i = 0; i < total; i += 1) {
       tool.steps.progress(i, total, `Uniendo ${i + 1} de ${total}…`);
       const { doc, rotation } = items[i];
-      const copied = await out.copyPages(doc, doc.getPageIndices());
+      const copied = await copyPagesClean(out, doc, doc.getPageIndices());
       copied.forEach((page) => {
         if (rotation) page.setRotation(degrees((page.getRotation().angle + rotation) % 360));
       });
@@ -175,6 +176,7 @@ runButton.addEventListener('click', () =>
     }
     tool.steps.progress(total, total, 'Guardando…');
     await nextFrame();
+    await cleanOutput(out);
     const bytes = await out.save();
     tool.finish(pdfBlob(bytes), 'unido.pdf');
   })

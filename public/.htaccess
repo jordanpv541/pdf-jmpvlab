@@ -8,10 +8,11 @@ ErrorDocument 404 /404.html
 <IfModule mod_rewrite.c>
   RewriteEngine On
 
-  # HTTPS: en SiteGround es mejor activarlo en Site Tools > Seguridad > HTTPS Enforce.
-  # Si prefieres hacerlo aquí, quita el # de las dos líneas siguientes.
-  # RewriteCond %{HTTPS} off
-  # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+  # Siempre HTTPS: quien entra por http:// pasa a https://.
+  # (En SiteGround también se puede activar en Site Tools > Seguridad > Forzar HTTPS.)
+  RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
   # Quita "index.html" de las direcciones: /unir/index.html → /unir/
   RewriteCond %{THE_REQUEST} \s/+(.*/)?index\.html[\s?] [NC]
@@ -40,18 +41,16 @@ ErrorDocument 404 /404.html
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
   Header always set Cross-Origin-Opener-Policy "same-origin"
   Header always set X-Frame-Options "DENY"
-  # Actívalo cuando el sitio ya funcione bien con HTTPS:
-  # Header always set Strict-Transport-Security "max-age=31536000"
+  # El navegador recuerda por un año que este sitio va siempre por HTTPS.
+  Header always set Strict-Transport-Security "max-age=31536000"
 
-  # Caché: las páginas y sw.js siempre se revisan; lo demás se guarda una semana.
-  <FilesMatch "\.(html|webmanifest)$|^sw\.js$">
+  # Caché: páginas, estilos y código siempre se revisan (los nombres no cambian entre
+  # versiones; el modo sin conexión ya guarda su propia copia). Lo demás, una semana.
+  <FilesMatch "\.(html|webmanifest|css|js|mjs)$">
     Header set Cache-Control "no-cache"
   </FilesMatch>
-  <FilesMatch "\.(css|js|mjs|woff2|png|svg|wasm|bcmap|pfb|icc|gz)$">
+  <FilesMatch "\.(woff2|png|svg|wasm|bcmap|pfb|icc|gz)$">
     Header set Cache-Control "public, max-age=604800"
-  </FilesMatch>
-  <FilesMatch "^sw\.js$">
-    Header set Cache-Control "no-cache"
   </FilesMatch>
 </IfModule>
 

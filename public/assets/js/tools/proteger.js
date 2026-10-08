@@ -67,11 +67,13 @@ runButton.addEventListener('click', () =>
     }
     tool.steps.progress(0, 1, 'Cifrando el archivo…');
     await nextFrame();
+    // Las contraseñas van como --user-password=…: así una que empieza con «@» o «-»
+    // no se confunde con un archivo o una opción de qpdf.
     const args = [
       '--encrypt',
-      pw.value,
-      randomOwnerPassword(),
-      '256',
+      `--user-password=${pw.value}`,
+      `--owner-password=${randomOwnerPassword()}`,
+      '--bits=256',
       `--print=${$('#allow-print').checked ? 'full' : 'none'}`,
       `--extract=${$('#allow-copy').checked ? 'y' : 'n'}`,
       `--modify=${$('#allow-edit').checked ? 'all' : 'none'}`,

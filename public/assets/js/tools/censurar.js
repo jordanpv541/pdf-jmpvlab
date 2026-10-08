@@ -20,6 +20,7 @@ import {
   setupTool,
   viewTransform,
 } from '../app.js';
+import { cleanOutput, copyPagesClean, standIn } from '../pdf-clean.js';
 
 let state = null;
 
@@ -87,12 +88,22 @@ function placeBox(el, b) {
   el.style.height = `${b.h * 100}%`;
 }
 
+/** Recuadro que debe recibir el foco después de volver a dibujarlos (teclado). */
+let focusIndex = null;
+
 function paintBoxes() {
   stage.querySelectorAll('.redact-box').forEach((el) => el.remove());
   const list = boxesOf(state.current);
   list.forEach((b, i) => {
     const el = document.createElement('div');
     el.className = `redact-box is-${fill()}`;
+    el.tabIndex = 0;
+    el.dataset.index = String(i);
+    el.setAttribute('role', 'group');
+    el.setAttribute(
+      'aria-label',
+      `Recuadro ${i + 1} de la página ${state.current}. Flechas para moverlo, Mayús y flechas para cambiar su tamaño, Suprimir para quitarlo.`
+    );
     placeBox(el, b);
     const remove = document.createElement('button');
     remove.type = 'button';
@@ -103,8 +114,56 @@ function paintBoxes() {
     el.append(remove);
     stage.append(el);
   });
+  if (focusIndex != null) {
+    stage.querySelector(`.redact-box[data-index="${focusIndex}"]`)?.focus();
+    focusIndex = null;
+  }
   updateCount();
 }
+
+/* ---------- Con teclado ---------- */
+
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+
+$('[data-add-box]').addEventListener('click', () => {
+  if (!state) return;
+  const list = boxesOf(state.current);
+  list.push({ x: 0.3, y: 0.45, w: 0.4, h: 0.06 });
+  focusIndex = list.length - 1;
+  paintBoxes();
+});
+
+// Flechas: mover. Mayús + flechas: cambiar el tamaño. Suprimir o Retroceso: quitar.
+stage.addEventListener('keydown', (event) => {
+  const el = event.target.closest('.redact-box');
+  if (!el || !state || event.target !== el) return;
+  const i = Number(el.dataset.index);
+  const list = boxesOf(state.current);
+  const b = list[i];
+  if (!b) return;
+  if (event.key === 'Delete' || event.key === 'Backspace') {
+    event.preventDefault();
+    list.splice(i, 1);
+    paintBoxes();
+    countText.textContent = `Recuadro quitado. ${countText.textContent}`;
+    $('[data-add-box]').focus();
+    return;
+  }
+  const step = 0.01;
+  const keys = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
+  const delta = keys[event.key];
+  if (!delta) return;
+  event.preventDefault();
+  if (event.shiftKey) {
+    b.w = Math.min(1 - b.x, Math.max(0.02, b.w + delta[0]));
+    b.h = Math.min(1 - b.y, Math.max(0.01, b.h + delta[1]));
+  } else {
+    b.x = clamp01(Math.min(1 - b.w, b.x + delta[0]));
+    b.y = clamp01(Math.min(1 - b.h, b.y + delta[1]));
+  }
+  focusIndex = i;
+  paintBoxes();
+});
 
 function updateCount() {
   let total = 0;
@@ -179,7 +238,7 @@ runButton.addEventListener('click', () =>
     out.setCreator('PDF jmpvlab');
     const markedSet = new Set(marked);
     const keepIdx = state.doc.getPageIndices().filter((i) => !markedSet.has(i + 1));
-    const copies = await out.copyPages(state.doc, keepIdx);
+    const copies = await copyPagesClean(out, state.doc, keepIdx);
     let k = 0;
     let done = 0;
     for (let n = 1; n <= state.count; n += 1) {
@@ -208,10 +267,13 @@ runButton.addEventListener('click', () =>
       const { viewW, viewH } = viewTransform(state.doc.getPage(n - 1));
       const page = out.addPage([viewW, viewH]);
       page.drawImage(jpg, { x: 0, y: 0, width: viewW, height: viewH });
+      standIn(out, page, state.doc, n - 1);
       done += 1;
     }
     tool.steps.progress(marked.length, marked.length, 'Guardando…');
     await nextFrame();
+    // Sin esto, lo tapado puede seguir escondido en el archivo (enlaces, recursos compartidos).
+    await cleanOutput(out);
     const bytes = await out.save();
     tool.finish(pdfBlob(bytes), `${baseName(state.file.name)}-censurado.pdf`);
   })
