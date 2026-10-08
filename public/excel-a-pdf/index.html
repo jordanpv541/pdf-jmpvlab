@@ -6,8 +6,8 @@
 <title>Convertir Excel a PDF gratis | PDF jmpvlab</title>
 <meta name="description" content="Convierte hojas de Excel (XLSX, XLS, ODS, CSV) a PDF. Gratis, sin anuncios y sin cuenta.">
 <link rel="canonical" href="https://pdf.jmpvlab.com/excel-a-pdf/">
-<meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f131b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <meta name="pdf-api" content="https://api-pdf.jmpvlab.com">
 <link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
@@ -22,32 +22,43 @@
 <meta property="og:url" content="https://pdf.jmpvlab.com/excel-a-pdf/">
 <meta property="og:image" content="https://pdf.jmpvlab.com/assets/icons/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/css/styles.css">
 <script type="module" src="../assets/js/tools/convertir.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
 <header class="site-header">
-  <div class="wrap">
-    <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--manila)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--stamp)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
-    <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+  <div class="wrap header-row">
+    <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--panel)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--brand)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
+    <nav class="header-nav" aria-label="Principal">
+      <a href="../#herramientas">Herramientas</a>
+      <a class="nav-optional" href="../privacidad/">Privacidad</a>
+      <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+    </nav>
   </div>
 </header>
 <main id="main" class="tool" data-tool="excel-a-pdf" data-kind="excel-a-pdf" data-accept="xlsx,xls,ods,csv" data-out="documento.pdf">
-  <a class="back" href="../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg>Todas las herramientas</a>
-  <h1>Excel a PDF</h1>
-  <p class="lede">Convierte una hoja de cálculo en PDF. Cada hoja del libro sale en sus propias páginas.</p>
+  <a class="back" href="../#herramientas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg>Todas las herramientas</a>
+  <div class="tool-head">
+    <span class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/><path d="M4 15l4 6"/><path d="M4 21l4 -6"/><path d="M17 20.25c0 .414 .336 .75 .75 .75h1.25a1 1 0 0 0 1 -1v-1a1 1 0 0 0 -1 -1h-1a1 1 0 0 1 -1 -1v-1a1 1 0 0 1 1 -1h1.25a.75 .75 0 0 1 .75 .75"/><path d="M11 15v6h3"/></svg></span>
+    <div>
+      <h1>Excel a PDF</h1>
+      <p class="lede">Convierte una hoja de cálculo en PDF. Cada hoja del libro sale en sus propias páginas.</p>
+    </div>
+  </div>
 
   <section class="step" data-step="pick" aria-label="Elegir archivos">
+    <div class="drop-sheet">
     <div class="drop" data-drop>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 3h9l3 3v15H6z"/><path d="M15 3v3h3"/><path d="M8.5 10h7v6.5h-7zM8.5 13.25h7M12 10v6.5"/></svg>
+      <span class="drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></svg></span>
       <button type="button" class="btn btn-primary" data-pick>Elegir archivo de Excel</button>
       <p class="drop-hint">o suéltalo aquí</p>
       <input type="file" accept=".xlsx,.xls,.ods,.csv" hidden data-input>
     </div>
-    <p class="local-note server-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5"/><path d="M12 12v8"/><path d="m9 15 3-3 3 3"/></svg><span>Este archivo se sube a nuestro servidor solo para convertirlo y se borra apenas termina. No lo guardamos ni lo vemos.</span></p>
+    </div>
+    <p class="local-note server-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"/><path d="M9 15l3 -3l3 3"/><path d="M12 12l0 9"/></svg><span>Este archivo se sube a nuestro servidor solo para convertirlo y se borra apenas termina. No lo guardamos ni lo vemos.</span></p>
   </section>
 
   <section class="step" data-step="work" hidden aria-label="Opciones">
@@ -62,23 +73,69 @@
   <p class="status" data-status role="status" aria-live="polite"></p>
 
   <section class="step done" data-step="done" hidden tabindex="-1" aria-labelledby="done-title">
-    <h2 id="done-title">Listo para descargar</h2>
+    <h2 id="done-title"><span class="done-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12l5 5l10 -10"/></svg></span>Listo para descargar</h2>
     <p class="done-file" data-done-file></p>
     <p class="done-note" data-done-note></p>
     <div class="result-pages" data-result></div>
     <p class="result-note" data-result-note></p>
     <div class="actions">
-      <a class="btn btn-primary" href="#" data-download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="m7 10.5 5 5 5-5"/><path d="M5 20h14"/></svg>Descargar</a>
+      <a class="btn btn-primary" href="#" data-download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></svg>Descargar</a>
       <button type="button" class="btn btn-quiet" data-adjust>Volver a las opciones</button>
       <button type="button" class="btn btn-quiet" data-restart>Empezar con otro archivo</button>
     </div>
   </section>
 </main>
+<aside class="related wrap" aria-labelledby="related-title">
+  <h2 id="related-title">Otras herramientas</h2>
+  <ul class="tiles tiles-related">
+          <li>
+            <a class="tile" href="../jpg-a-pdf/" data-search="jpg a pdf convierte fotos e imagenes en un pdf. imagen imagenes foto fotos png jpeg">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 8h.01"/><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12"/><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5"/><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">JPG a PDF</span>
+                <span class="tile-desc">Convierte fotos e imágenes en un PDF.</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="../escanear/" data-search="escanear a pdf toma fotos de tus hojas con el celular y juntalas en un pdf. camara celular foto hojas documento">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="M3 7v-2a2 2 0 0 1 2 -2h2"/><path d="M3 17v2a2 2 0 0 0 2 2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M17 21h2a2 2 0 0 0 2 -2v-2"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">Escanear a PDF</span>
+                <span class="tile-desc">Toma fotos de tus hojas con el celular y júntalas en un PDF.</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="../word-a-pdf/" data-search="word a pdf convierte documentos de word en pdf. doc docx documento odt">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/><path d="M5 15v6h1a2 2 0 0 0 2 -2v-2a2 2 0 0 0 -2 -2h-1"/><path d="M20 16.5a1.5 1.5 0 0 0 -3 0v3a1.5 1.5 0 0 0 3 0"/><path d="M12.5 15a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1 -3 0v-3a1.5 1.5 0 0 1 1.5 -1.5"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">Word a PDF</span>
+                <span class="tile-desc">Convierte documentos de Word en PDF.</span>
+                <span class="tile-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"/><path d="M9 15l3 -3l3 3"/><path d="M12 12l0 9"/></svg>Usa nuestro servidor</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="../powerpoint-a-pdf/" data-search="powerpoint a pdf convierte presentaciones en pdf. ppt pptx presentacion diapositivas">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"/><path d="M11 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6"/><path d="M16.5 15h3"/><path d="M18 15v6"/><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">PowerPoint a PDF</span>
+                <span class="tile-desc">Convierte presentaciones en PDF.</span>
+                <span class="tile-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1"/><path d="M9 15l3 -3l3 3"/><path d="M12 12l0 9"/></svg>Usa nuestro servidor</span>
+              </span>
+            </a>
+          </li>
+  </ul>
+</aside>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Sin anuncios y sin cuentas. Casi todo pasa en tu navegador; las conversiones con Word, Excel, PowerPoint, HTML y PDF/A usan nuestro servidor y borran tu archivo al terminar.</p>
+  <div class="wrap footer-row">
+    <div class="footer-brand">
+      <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--panel)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--brand)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
+      <p>Herramientas PDF gratis, sin anuncios y sin cuentas. Código libre con licencia AGPL.</p>
+    </div>
     <ul class="footer-links">
-      <li><a href="../">Todas las herramientas</a></li>
+      <li><a href="../#herramientas">Todas las herramientas</a></li>
       <li><a href="../privacidad/">Privacidad</a></li>
       <li><a href="../terminos/">Términos y créditos</a></li>
       <li><a href="https://github.com/jordanpv541/pdf-jmpvlab" rel="noopener">Código fuente</a></li>

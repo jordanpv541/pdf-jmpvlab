@@ -20,7 +20,7 @@ El servidor está en `server/` y tiene su propia guía: [server/README.md](serve
 ## Qué hay en cada carpeta
 
 - `public/` es el sitio terminado. Esto es lo que se sube al hosting.
-- `public/assets/` tiene los estilos, la fuente, los íconos y el código de cada herramienta (`assets/js/tools/`).
+- `public/assets/` tiene los estilos, las fuentes (Bricolage Grotesque y Figtree), los íconos (Tabler Icons) y el código de cada herramienta (`assets/js/tools/`).
 - `public/vendor/` tiene las librerías de terceros, cada una con su licencia.
 - `tools/site.mjs` tiene los textos del sitio y el formulario de cada herramienta.
 - `tools/build.mjs` genera las páginas HTML, `sw.js`, `sitemap.xml` y `robots.txt`.

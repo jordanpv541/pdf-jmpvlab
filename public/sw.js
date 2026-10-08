@@ -1,15 +1,12 @@
 // Generado por tools/build.mjs. No lo edites a mano.
-const VERSION = '40b1a1c54043';
+const VERSION = '338ab709f2b3';
 const CACHE = 'pdf-jmpvlab-' + VERSION;
 const RUNTIME = 'pdf-jmpvlab-runtime-' + VERSION;
 const PRECACHE = [
   "assets/css/styles.css",
-  "assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2",
-  "assets/fonts/atkinson-hyperlegible-next-latin-600-normal.woff2",
-  "assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2",
-  "assets/fonts/atkinson-hyperlegible-next-latin-ext-400-normal.woff2",
-  "assets/fonts/atkinson-hyperlegible-next-latin-ext-600-normal.woff2",
-  "assets/fonts/atkinson-hyperlegible-next-latin-ext-800-normal.woff2",
+  "assets/fonts/bricolage-grotesque-latin.woff2",
+  "assets/fonts/figtree-latin-ext.woff2",
+  "assets/fonts/figtree-latin.woff2",
   "assets/fonts/firma/caveat-latin-400-normal.woff2",
   "assets/fonts/firma/dancing-script-latin-400-normal.woff2",
   "assets/fonts/firma/great-vibes-latin-400-normal.woff2",

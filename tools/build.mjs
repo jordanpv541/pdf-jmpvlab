@@ -12,7 +12,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promi
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { icons } from '../public/assets/js/icons.js';
-import { groups, site, tools } from './site.mjs';
+import { groups, searchWords, site, tools } from './site.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLIC = join(ROOT, 'public');
@@ -32,7 +32,7 @@ function makeLinker(prefix, preview) {
   };
 }
 
-function layout({ prefix, path, title, metaDesc, main, script, preview, noindex = false, server = false }) {
+function layout({ prefix, path, title, metaDesc, main, script, preview, noindex = false, server = false, after = '' }) {
   const link = makeLinker(prefix, preview);
   const asset = (p) => `${prefix}${p}`;
   const canonical = `${site.url}/${path}`;
@@ -44,8 +44,8 @@ function layout({ prefix, path, title, metaDesc, main, script, preview, noindex 
 <title>${title}</title>
 <meta name="description" content="${metaDesc}">
 ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" href="${canonical}">`}
-<meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f131b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">${server ? `\n<meta name="pdf-api" content="${site.apiUrl}">` : ''}${preview ? '\n<meta name="pdf-preview" content="1">' : ''}
 <link rel="icon" href="${asset('assets/icons/favicon.svg')}" type="image/svg+xml">
 <link rel="icon" href="${asset('assets/icons/favicon-32.png')}" sizes="32x32" type="image/png">
@@ -59,25 +59,32 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <meta property="og:url" content="${canonical}">
 <meta property="og:image" content="${site.url}/assets/icons/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="${asset('assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2')}" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="${asset('assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2')}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${asset('assets/fonts/figtree-latin.woff2')}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="${asset('assets/fonts/bricolage-grotesque-latin.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${asset('assets/css/styles.css')}">
 ${script ? `<script type="module" src="${asset(script)}"></script>` : ''}
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
 <header class="site-header">
-  <div class="wrap">
+  <div class="wrap header-row">
     <a class="wordmark" href="${link('')}">${icons.logo}<span>${site.name}</span></a>
-    <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+    <nav class="header-nav" aria-label="Principal">
+      <a href="${link('')}#herramientas">Herramientas</a>
+      <a class="nav-optional" href="${link('privacidad/')}">Privacidad</a>
+      <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+    </nav>
   </div>
 </header>
-${main}
+${main}${after}
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Sin anuncios y sin cuentas. Casi todo pasa en tu navegador; las conversiones con Word, Excel, PowerPoint, HTML y PDF/A usan nuestro servidor y borran tu archivo al terminar.</p>
+  <div class="wrap footer-row">
+    <div class="footer-brand">
+      <a class="wordmark" href="${link('')}">${icons.logo}<span>${site.name}</span></a>
+      <p>Herramientas PDF gratis, sin anuncios y sin cuentas. Código libre con licencia AGPL.</p>
+    </div>
     <ul class="footer-links">
-      <li><a href="${link('')}">Todas las herramientas</a></li>
+      <li><a href="${link('')}#herramientas">Todas las herramientas</a></li>
       <li><a href="${link('privacidad/')}">Privacidad</a></li>
       <li><a href="${link('terminos/')}">Términos y créditos</a></li>
       <li><a href="${site.sourceUrl}" rel="noopener">Código fuente</a></li>
@@ -89,55 +96,99 @@ ${main}
 `;
 }
 
+/** Ficha de una herramienta: una hoja con la esquina doblada. */
+function tile(t, link) {
+  const words = `${t.name} ${t.desc} ${searchWords[t.slug] || ''}`
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+  return `
+          <li>
+            <a class="tile" href="${link(`${t.slug}/`)}" data-search="${words}">
+              <span class="tile-icon">${icons[t.slug]}</span>
+              <span class="tile-text">
+                <span class="tile-name">${t.name}</span>
+                <span class="tile-desc">${t.desc}</span>${t.server ? `\n                <span class="tile-tag">${icons.server}Usa nuestro servidor</span>` : ''}
+              </span>
+            </a>
+          </li>`;
+}
+
 function homeMain(link) {
   const shelves = groups
     .map((group) => {
       const items = tools
         .filter((t) => t.group === group.id)
-        .map(
-          (t) => `
-          <li>
-            <a class="folder" href="${link(`${t.slug}/`)}">
-              <span class="folder-tab">${t.name}</span>
-              ${icons[t.slug]}
-              <span class="folder-desc">${t.desc}${t.server ? '<span class="folder-badge">Usa nuestro servidor</span>' : ''}</span>
-            </a>
-          </li>`
-        )
+        .map((t) => tile(t, link))
         .join('');
       return `
-      <section class="shelf-group" aria-labelledby="g-${group.id}">
+      <section class="tool-group" data-group="${group.id}" aria-labelledby="g-${group.id}">
         <h2 id="g-${group.id}">${group.title}</h2>
-        <ul class="folders">${items}
+        <ul class="tiles">${items}
         </ul>
       </section>`;
     })
     .join('');
+  const filters = [`<button type="button" class="filter" data-filter="" aria-pressed="true">Todas</button>`]
+    .concat(groups.map((g) => `<button type="button" class="filter" data-filter="${g.id}" aria-pressed="false">${g.title}</button>`))
+    .join('\n      ');
+  const local = tools.filter((t) => !t.server).length;
+  const remote = tools.filter((t) => t.server).length;
 
-  return `<main id="main">
+  return `<main id="main" class="home">
   <section class="hero wrap">
-    <h1>Arregla tus PDF sin anuncios ni cuentas.</h1>
-    <p>Une, divide, comprime, convierte y firma PDF gratis. Casi todo pasa en tu navegador: solo las conversiones de Office, HTML y PDF/A usan nuestro servidor, y tu archivo se borra al terminar.</p>
+    <h1>Tus PDF, sin anuncios y sin cuentas.</h1>
+    <p class="hero-sub">Une, divide, comprime, convierte y firma. Casi todo se hace en tu navegador, sin subir tus archivos.</p>
+    <form class="finder" role="search" data-finder>
+      <label class="finder-label" for="buscar">¿Qué quieres hacer?</label>
+      <div class="finder-field">
+        ${icons.search}
+        <input id="buscar" type="search" placeholder="Unir, comprimir, Word…" autocomplete="off" spellcheck="false" enterkeyhint="go" data-search-input>
+        <kbd aria-hidden="true">/</kbd>
+      </div>
+    </form>
   </section>
-  <div class="shelf wrap">${shelves}
-  </div>
-  <section class="wrap" aria-label="Por qué usarlo">
-   <div class="promise">
-    <div>
-      <h2>Sin anuncios</h2>
-      <p>Sin banners, sin ventanas emergentes y sin esperas para descargar.</p>
+
+  <section class="catalog wrap" id="herramientas" aria-label="Herramientas">
+    <div class="filters" role="group" aria-label="Mostrar herramientas de">
+      ${filters}
     </div>
-    <div>
-      <h2>Tus archivos se quedan contigo</h2>
-      <p>La mayoría de herramientas trabaja en tu dispositivo. Las que usan el servidor lo dicen y borran tu archivo apenas termina.</p>
+    <p class="catalog-empty" data-empty hidden>No encontramos una herramienta con esa palabra. Prueba con otra, por ejemplo «unir», «comprimir» o «Word».</p>
+    <p class="visually-hidden" data-count aria-live="polite"></p>${shelves}
+  </section>
+
+  <section class="where wrap" aria-labelledby="where-title">
+    <h2 id="where-title">Dónde se procesan tus archivos</h2>
+    <div class="where-grid">
+      <div class="where-item">
+        <span class="where-icon">${icons.device}</span>
+        <h3>En tu navegador</h3>
+        <p class="where-count">${local} herramientas</p>
+        <p>El archivo no sale de tu equipo. Después de la primera visita funcionan incluso sin internet.</p>
+      </div>
+      <div class="where-item">
+        <span class="where-icon">${icons.server}</span>
+        <h3>En nuestro servidor</h3>
+        <p class="where-count">${remote} conversiones</p>
+        <p>Word, Excel, PowerPoint, HTML y PDF/A. El archivo viaja cifrado y se borra apenas termina.</p>
+      </div>
     </div>
-    <div>
-      <h2>Funciona sin internet</h2>
-      <p>Después de la primera visita puedes usarlo sin conexión o instalarlo como app.</p>
-    </div>
-   </div>
+    <p class="where-more"><a href="${link('privacidad/')}">Cómo cuidamos tus archivos</a></p>
   </section>
 </main>`;
+}
+
+/** Otras herramientas del mismo grupo (y si faltan, de otros), al pie de cada herramienta. */
+function relatedAside(tool, link) {
+  const same = tools.filter((t) => t.group === tool.group && t.slug !== tool.slug);
+  const others = tools.filter((t) => t.group !== tool.group);
+  const picks = same.concat(others).slice(0, 4);
+  return `
+<aside class="related wrap" aria-labelledby="related-title">
+  <h2 id="related-title">Otras herramientas</h2>
+  <ul class="tiles tiles-related">${picks.map((t) => tile(t, link)).join('')}
+  </ul>
+</aside>`;
 }
 
 function toolMain(tool, link, preview) {
@@ -156,16 +207,23 @@ function toolMain(tool, link, preview) {
     ? `<p class="local-note server-note">${icons.server}<span>${tool.serverNote || 'Este archivo se sube a nuestro servidor solo para convertirlo y se borra apenas termina. No lo guardamos ni lo vemos.'}</span></p>`
     : `<p class="local-note">${icons.lock}<span>Tus archivos no salen de tu dispositivo. Todo se hace en tu navegador.</span></p>`;
   return `<main id="main" class="tool" data-tool="${tool.slug}"${serverData}>
-  <a class="back" href="${link('')}">${icons.back}Todas las herramientas</a>
-  <h1>${tool.name}</h1>
-  <p class="lede">${tool.lede}</p>${preview && (tool.previewWarning || tool.server) ? `\n  <p class="preview-note">${tool.previewWarning || 'En esta vista previa esta herramienta no funciona: usa el servidor de conversiones, que todavía no está montado.'}</p>` : ''}
+  <a class="back" href="${link('')}#herramientas">${icons.back}Todas las herramientas</a>
+  <div class="tool-head">
+    <span class="tool-icon">${icons[tool.slug]}</span>
+    <div>
+      <h1>${tool.name}</h1>
+      <p class="lede">${tool.lede}</p>
+    </div>
+  </div>${preview && (tool.previewWarning || tool.server) ? `\n  <p class="preview-note">${tool.previewWarning || 'En esta vista previa esta herramienta no funciona: usa el servidor de conversiones, que todavía no está montado.'}</p>` : ''}
 
   <section class="step" data-step="pick" aria-label="Elegir archivos">
+    <div class="drop-sheet">
     <div class="drop" data-drop>
-      ${icons[tool.slug]}
+      <span class="drop-icon">${icons.upload}</span>
       <button type="button" class="btn btn-primary" data-pick>${tool.pickText}</button>
       <p class="drop-hint">${tool.dropHint}</p>
       <input type="file" accept="${accept}"${tool.multiple && !tool.capture ? ' multiple' : ''}${tool.capture ? ' capture="environment"' : ''} hidden data-input>${tool.pickExtra ? `\n      ${tool.pickExtra}` : ''}
+    </div>
     </div>${tool.pickAfter ? `\n    ${tool.pickAfter}` : ''}
     ${note}
   </section>
@@ -180,7 +238,7 @@ function toolMain(tool, link, preview) {
   <p class="status" data-status role="status" aria-live="polite"></p>
 
   <section class="step done" data-step="done" hidden tabindex="-1" aria-labelledby="done-title">
-    <h2 id="done-title">Listo para descargar</h2>
+    <h2 id="done-title"><span class="done-badge">${icons.check}</span>Listo para descargar</h2>
     <p class="done-file" data-done-file></p>
     <p class="done-note" data-done-note></p>
     <div class="result-pages" data-result></div>
@@ -258,13 +316,14 @@ function termsHtml(link) {
     <li>pdf-lib, para crear y modificar PDF. Licencia MIT.</li>
     <li>PDF.js de Mozilla, para mostrar las páginas y convertirlas en imágenes. Licencia Apache 2.0.</li>
     <li>fflate, para crear archivos ZIP. Licencia MIT.</li>
-    <li>Atkinson Hyperlegible Next, la fuente del sitio, del Braille Institute. Licencia SIL Open Font License 1.1.</li>
+    <li>Bricolage Grotesque y Figtree, las fuentes del sitio. Licencia SIL Open Font License 1.1.</li>
+    <li>Tabler Icons, los íconos. Licencia MIT.</li>
     <li>Dancing Script, Great Vibes y Caveat, las fuentes para escribir firmas. Licencia SIL Open Font License 1.1.</li>
     <li>qpdf, para poner y quitar contraseñas y compactar archivos. Licencia Apache 2.0.</li>
     <li>Tesseract OCR y tesseract.js, para reconocer texto en páginas escaneadas. Licencia Apache 2.0.</li>
     <li>En el servidor: Gotenberg (MIT), LibreOffice (MPL 2.0), Chromium (BSD), PyMuPDF (AGPL 3.0), pdf2docx (MIT), openpyxl (MIT) y python-pptx (MIT).</li>
   </ul>
-  <p>Las licencias completas están junto a cada librería, en la carpeta <code>vendor</code> del sitio.</p>
+  <p>Las licencias completas están junto a cada librería, en las carpetas <code>vendor</code> y <code>assets</code> del sitio.</p>
   <p><a href="${link('')}">Volver a las herramientas</a></p>`;
 }
 
@@ -303,6 +362,7 @@ function pagesFor(preview) {
         title: `${tool.title} | ${site.name}`,
         metaDesc: tool.metaDesc,
         main: toolMain(tool, link, preview),
+        after: relatedAside(tool, link),
         script: `assets/js/tools/${tool.server ? 'convertir' : tool.script || tool.slug}.js`,
         server: tool.server,
         preview,

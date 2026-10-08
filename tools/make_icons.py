@@ -10,10 +10,10 @@ PUBLIC = ROOT / "public"
 OUT = PUBLIC / "assets" / "icons"
 FONTS = (PUBLIC / "assets" / "fonts").as_uri()
 
-LOGO = """<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="#fff" stroke="#1a2233" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="#eacd8c" stroke="#1a2233" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="#2d43c2" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>"""
+LOGO = """<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="#fff" stroke="#1f2328" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="#1d8fc7" stroke="#1f2328" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="#1d8fc7" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg>"""
 
 
-def icon_html(size, logo_ratio, radius_ratio, bg="#f4f6fa"):
+def icon_html(size, logo_ratio, radius_ratio, bg="#f4f5f7"):
     logo = round(size * logo_ratio)
     radius = round(size * radius_ratio)
     return f"""<!doctype html><html><body style="margin:0;background:transparent">
@@ -21,22 +21,24 @@ def icon_html(size, logo_ratio, radius_ratio, bg="#f4f6fa"):
 <div style="width:{logo}px;height:{logo}px">{LOGO}</div></div></body></html>"""
 
 
+SHEETS = ["Unir PDF", "Comprimir PDF", "PDF a Word", "Firmar PDF"]
+
 OG = f"""<!doctype html><html><head><style>
-@font-face{{font-family:A;font-weight:800;src:url({FONTS}/atkinson-hyperlegible-next-latin-800-normal.woff2)}}
-@font-face{{font-family:A;font-weight:800;src:url({FONTS}/atkinson-hyperlegible-next-latin-ext-800-normal.woff2);unicode-range:U+0100-02BA}}
-@font-face{{font-family:A;font-weight:400;src:url({FONTS}/atkinson-hyperlegible-next-latin-400-normal.woff2)}}
+@font-face{{font-family:B;font-weight:200 800;src:url({FONTS}/bricolage-grotesque-latin.woff2)}}
+@font-face{{font-family:F;font-weight:300 900;src:url({FONTS}/figtree-latin.woff2)}}
 body{{margin:0}}
-.og{{width:1200px;height:630px;box-sizing:border-box;padding:72px 80px;background:#f4f6fa;color:#1a2233;font-family:A;display:flex;flex-direction:column;justify-content:space-between}}
-.mark{{display:flex;align-items:center;gap:16px;font-weight:800;font-size:38px}}
-.mark svg{{width:58px;height:58px}}
-h1{{margin:0;font-size:76px;line-height:1.05;letter-spacing:-0.025em;max-width:15ch;font-weight:800}}
-.tabs{{display:flex;gap:14px}}
-.tab{{background:#eacd8c;border:2px solid #c49b4a;border-bottom:0;border-radius:12px 16px 0 0;padding:10px 24px 8px;font-weight:800;font-size:28px;color:#382c10}}
-.shelf{{border-top:2px solid #c49b4a;background:#f4e4bb;height:18px;margin:0 -80px -72px;padding:0}}
+.og{{width:1200px;height:630px;box-sizing:border-box;padding:68px 80px;background:#f4f5f7;color:#1f2328;font-family:F;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}}
+.mark{{display:flex;align-items:center;gap:16px;font-family:B;font-weight:700;font-size:38px;letter-spacing:-0.015em}}
+.mark svg{{width:56px;height:56px}}
+h1{{margin:0;font-family:B;font-size:84px;line-height:1.0;letter-spacing:-0.035em;max-width:13ch;font-weight:720}}
+.sheets{{display:flex;gap:18px;margin:0 -40px -110px 0}}
+.sheet{{--f:30px;position:relative;width:250px;height:150px;padding:26px 24px;box-sizing:border-box;background:#fff;border-radius:18px 0 18px 18px;clip-path:polygon(0 0,calc(100% - var(--f)) 0,100% var(--f),100% 100%,0 100%);font-family:B;font-weight:650;font-size:30px;filter:drop-shadow(0 6px 14px rgba(31,35,40,.08))}}
+.sheet::after{{content:"";position:absolute;top:0;right:0;width:var(--f);height:var(--f);background:#e6e9ed;border-bottom-left-radius:6px}}
+.sheet i{{display:block;width:44px;height:6px;border-radius:3px;background:#1d8fc7;margin-bottom:22px}}
 </style></head><body><div class="og">
 <div class="mark">{LOGO}<span>PDF jmpvlab</span></div>
-<h1>Arregla tus PDF sin subirlos a ningún lado.</h1>
-<div><div class="tabs"><span class="tab">Unir PDF</span><span class="tab">Dividir PDF</span><span class="tab">JPG a PDF</span><span class="tab">Marca de agua</span></div><div class="shelf"></div></div>
+<h1>Tus PDF, sin anuncios y sin cuentas.</h1>
+<div class="sheets">{''.join(f'<div class="sheet"><i></i>{name}</div>' for name in SHEETS)}</div>
 </div></body></html>"""
 
 JOBS = [

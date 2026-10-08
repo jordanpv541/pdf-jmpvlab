@@ -6,8 +6,8 @@
 <title>Recortar márgenes de un PDF gratis | PDF jmpvlab</title>
 <meta name="description" content="Recorta los márgenes de las páginas de un PDF desde tu navegador. Gratis, sin anuncios y sin subir tus archivos.">
 <link rel="canonical" href="https://pdf.jmpvlab.com/recortar/">
-<meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0f131b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" href="../assets/icons/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="../assets/icons/favicon-32.png" sizes="32x32" type="image/png">
@@ -21,32 +21,43 @@
 <meta property="og:url" content="https://pdf.jmpvlab.com/recortar/">
 <meta property="og:image" content="https://pdf.jmpvlab.com/assets/icons/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="../assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="../assets/css/styles.css">
 <script type="module" src="../assets/js/tools/recortar.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Saltar al contenido</a>
 <header class="site-header">
-  <div class="wrap">
-    <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--sheet)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--manila)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--stamp)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
-    <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+  <div class="wrap header-row">
+    <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--panel)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--brand)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
+    <nav class="header-nav" aria-label="Principal">
+      <a href="../#herramientas">Herramientas</a>
+      <a class="nav-optional" href="../privacidad/">Privacidad</a>
+      <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+    </nav>
   </div>
 </header>
 <main id="main" class="tool" data-tool="recortar">
-  <a class="back" href="../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg>Todas las herramientas</a>
-  <h1>Recortar PDF</h1>
-  <p class="lede">Quita los bordes que sobran. Mira el resultado antes de guardar.</p>
+  <a class="back" href="../#herramientas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg>Todas las herramientas</a>
+  <div class="tool-head">
+    <span class="tool-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 5v10a1 1 0 0 0 1 1h10"/><path d="M5 8h10a1 1 0 0 1 1 1v10"/></svg></span>
+    <div>
+      <h1>Recortar PDF</h1>
+      <p class="lede">Quita los bordes que sobran. Mira el resultado antes de guardar.</p>
+    </div>
+  </div>
 
   <section class="step" data-step="pick" aria-label="Elegir archivos">
+    <div class="drop-sheet">
     <div class="drop" data-drop>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6.5 2.5v14a1 1 0 0 0 1 1h14"/><path d="M2.5 6.5h14a1 1 0 0 1 1 1v14"/></svg>
+      <span class="drop-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 9l5 -5l5 5"/><path d="M12 4l0 12"/></svg></span>
       <button type="button" class="btn btn-primary" data-pick>Elegir PDF</button>
       <p class="drop-hint">o suéltalo aquí</p>
       <input type="file" accept="application/pdf,.pdf" hidden data-input>
     </div>
-    <p class="local-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><span>Tus archivos no salen de tu dispositivo. Todo se hace en tu navegador.</span></p>
+    </div>
+    <p class="local-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"/><path d="M11 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12l0 2.5"/></svg><span>Tus archivos no salen de tu dispositivo. Todo se hace en tu navegador.</span></p>
   </section>
 
   <section class="step" data-step="work" hidden aria-label="Opciones">
@@ -75,9 +86,9 @@
             </div>
           </div>
           <figcaption class="page-nav">
-            <button type="button" class="icon-btn" data-prev aria-label="Ver la página anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14.5 6-6 6 6 6"/></svg></button>
+            <button type="button" class="icon-btn" data-prev aria-label="Ver la página anterior"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12l14 0"/><path d="M5 12l6 6"/><path d="M5 12l6 -6"/></svg></button>
             <span data-page-label>Página 1</span>
-            <button type="button" class="icon-btn" data-next aria-label="Ver la página siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 6 6 6-6 6"/></svg></button>
+            <button type="button" class="icon-btn" data-next aria-label="Ver la página siguiente"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12l14 0"/><path d="M13 18l6 -6"/><path d="M13 6l6 6"/></svg></button>
           </figcaption>
         </figure>
       </div>
@@ -92,23 +103,67 @@
   <p class="status" data-status role="status" aria-live="polite"></p>
 
   <section class="step done" data-step="done" hidden tabindex="-1" aria-labelledby="done-title">
-    <h2 id="done-title">Listo para descargar</h2>
+    <h2 id="done-title"><span class="done-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12l5 5l10 -10"/></svg></span>Listo para descargar</h2>
     <p class="done-file" data-done-file></p>
     <p class="done-note" data-done-note></p>
     <div class="result-pages" data-result></div>
     <p class="result-note" data-result-note></p>
     <div class="actions">
-      <a class="btn btn-primary" href="#" data-download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 4v11"/><path d="m7 10.5 5 5 5-5"/><path d="M5 20h14"/></svg>Descargar</a>
+      <a class="btn btn-primary" href="#" data-download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"/><path d="M7 11l5 5l5 -5"/><path d="M12 4l0 12"/></svg>Descargar</a>
       <button type="button" class="btn btn-quiet" data-adjust>Volver a las opciones</button>
       <button type="button" class="btn btn-quiet" data-restart>Empezar con otro archivo</button>
     </div>
   </section>
 </main>
+<aside class="related wrap" aria-labelledby="related-title">
+  <h2 id="related-title">Otras herramientas</h2>
+  <ul class="tiles tiles-related">
+          <li>
+            <a class="tile" href="../numeros-de-pagina/" data-search="numeros de pagina numera las paginas en la esquina que prefieras. numerar paginacion numeros">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M11 6h9"/><path d="M11 12h9"/><path d="M12 18h8"/><path d="M4 16a2 2 0 1 1 4 0c0 .591 -.5 1 -1 1.5l-3 2.5h4"/><path d="M6 10v-6l-2 2"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">Números de página</span>
+                <span class="tile-desc">Numera las páginas en la esquina que prefieras.</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="../marca-de-agua/" data-search="marca de agua pon un texto o un logo encima de cada pagina. sello logo texto confidencial">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">Marca de agua</span>
+                <span class="tile-desc">Pon un texto o un logo encima de cada página.</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="../unir/" data-search="unir pdf junta varios pdf en uno, en el orden que elijas. juntar combinar fusionar agrupar varios">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 7l4 -4l4 4"/><path d="M12 3v5.394a6.737 6.737 0 0 1 -3 5.606a6.737 6.737 0 0 0 -3 5.606v1.394"/><path d="M12 3v5.394a6.737 6.737 0 0 0 3 5.606a6.737 6.737 0 0 1 3 5.606v1.394"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">Unir PDF</span>
+                <span class="tile-desc">Junta varios PDF en uno, en el orden que elijas.</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="tile" href="../dividir/" data-search="dividir pdf saca las paginas que necesitas o separa el pdf en partes. separar partir cortar sacar">
+              <span class="tile-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M3 17a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M8.6 8.6l10.4 10.4"/><path d="M8.6 15.4l10.4 -10.4"/></svg></span>
+              <span class="tile-text">
+                <span class="tile-name">Dividir PDF</span>
+                <span class="tile-desc">Saca las páginas que necesitas o separa el PDF en partes.</span>
+              </span>
+            </a>
+          </li>
+  </ul>
+</aside>
 <footer class="site-footer">
-  <div class="wrap">
-    <p>Sin anuncios y sin cuentas. Casi todo pasa en tu navegador; las conversiones con Word, Excel, PowerPoint, HTML y PDF/A usan nuestro servidor y borran tu archivo al terminar.</p>
+  <div class="wrap footer-row">
+    <div class="footer-brand">
+      <a class="wordmark" href="../"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M8 3h11l7 7v17a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" fill="var(--panel)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M19 3v5a2 2 0 0 0 2 2h5z" fill="var(--brand)" stroke="var(--ink)" stroke-width="2" stroke-linejoin="round"/><path d="M10.5 17h11M10.5 22h7" stroke="var(--brand)" stroke-width="2.4" stroke-linecap="round"/></svg><span>PDF jmpvlab</span></a>
+      <p>Herramientas PDF gratis, sin anuncios y sin cuentas. Código libre con licencia AGPL.</p>
+    </div>
     <ul class="footer-links">
-      <li><a href="../">Todas las herramientas</a></li>
+      <li><a href="../#herramientas">Todas las herramientas</a></li>
       <li><a href="../privacidad/">Privacidad</a></li>
       <li><a href="../terminos/">Términos y créditos</a></li>
       <li><a href="https://github.com/jordanpv541/pdf-jmpvlab" rel="noopener">Código fuente</a></li>

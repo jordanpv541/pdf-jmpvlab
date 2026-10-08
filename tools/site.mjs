@@ -25,6 +25,37 @@ export const groups = [
   { id: 'firmar', title: 'Firmar y proteger' },
 ];
 
+/** Palabras extra para el buscador del inicio (sin tildes; se comparan sin tildes). */
+export const searchWords = {
+  unir: 'juntar combinar fusionar agrupar varios',
+  dividir: 'separar partir cortar sacar',
+  organizar: 'ordenar mover reordenar girar quitar paginas',
+  'eliminar-paginas': 'borrar quitar sacar paginas',
+  'extraer-paginas': 'sacar separar copiar paginas',
+  rotar: 'girar voltear orientacion',
+  comprimir: 'reducir achicar peso tamano liviano pesado',
+  reparar: 'arreglar danado corrupto no abre',
+  ocr: 'texto escaneo escaneado reconocer buscar copiar',
+  'jpg-a-pdf': 'imagen imagenes foto fotos png jpeg',
+  escanear: 'camara celular foto hojas documento',
+  'pdf-a-jpg': 'imagen imagenes foto png jpeg',
+  'numeros-de-pagina': 'numerar paginacion numeros',
+  'marca-de-agua': 'sello logo texto confidencial',
+  recortar: 'margenes bordes cortar',
+  firmar: 'firma firmar',
+  censurar: 'tapar ocultar borrar datos privados',
+  proteger: 'contrasena clave bloquear seguridad',
+  desbloquear: 'quitar contrasena clave desproteger',
+  'word-a-pdf': 'doc docx documento odt',
+  'excel-a-pdf': 'xls xlsx hoja calculo',
+  'powerpoint-a-pdf': 'ppt pptx presentacion diapositivas',
+  'html-a-pdf': 'web pagina url sitio enlace',
+  'pdf-a-word': 'doc docx editar documento',
+  'pdf-a-excel': 'xls xlsx tabla tablas hoja',
+  'pdf-a-powerpoint': 'ppt pptx presentacion diapositivas',
+  'pdf-a-pdfa': 'archivar archivo largo plazo institucion',
+};
+
 /* ---------- Ayudas de marcado ---------- */
 
 const chips = (name, options, { label } = {}) =>
