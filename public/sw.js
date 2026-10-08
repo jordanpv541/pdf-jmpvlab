@@ -1,5 +1,5 @@
 // Generado por tools/build.mjs. No lo edites a mano.
-const VERSION = '7b1a7cdc744b';
+const VERSION = '40b1a1c54043';
 const CACHE = 'pdf-jmpvlab-' + VERSION;
 const RUNTIME = 'pdf-jmpvlab-runtime-' + VERSION;
 const PRECACHE = [

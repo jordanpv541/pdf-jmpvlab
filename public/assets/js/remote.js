@@ -9,6 +9,27 @@ export function apiBase() {
   return document.querySelector('meta[name="pdf-api"]')?.content?.replace(/\/$/, '') || '';
 }
 
+/**
+ * Pregunta al servidor si está funcionando (GET /v1/health).
+ * Devuelve { ok: true, maxUploadMb } o { ok: false } si no responde en unos segundos.
+ */
+export async function checkServer(timeoutMs = 8000) {
+  const base = apiBase();
+  if (!base) return { ok: false };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(`${base}/v1/health`, { cache: 'no-store', signal: controller.signal });
+    if (!response.ok) return { ok: false };
+    const data = await response.json();
+    return { ok: data.ok === true, maxUploadMb: Number(data.maxUploadMb) || MAX_UPLOAD_MB };
+  } catch {
+    return { ok: false };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function fileNameFrom(header, fallback) {
   if (!header) return fallback;
   const star = /filename\*=UTF-8''([^;]+)/i.exec(header);

@@ -1,13 +1,31 @@
 // Herramientas de conversión que usan el servidor. La misma lógica sirve para todas;
 // cada página dice en <main> qué conversión es (data-kind) y qué archivos acepta (data-accept).
 import { $, $$, checkedValue, escapeHtml, fileSummary, setupTool } from '../app.js';
-import { convertRemote, MAX_UPLOAD_MB } from '../remote.js';
+import { checkServer, convertRemote, MAX_UPLOAD_MB } from '../remote.js';
 
 const main = $('main');
 const kind = main.dataset.kind;
 const accept = (main.dataset.accept || 'pdf').split(',');
 
 let state = null;
+let maxMb = MAX_UPLOAD_MB;
+
+// Al abrir la página revisamos si el servidor responde, para avisar antes de que elijan un archivo.
+const inPreview = Boolean($('meta[name="pdf-preview"]'));
+if (!inPreview && navigator.onLine) {
+  checkServer().then((server) => {
+    if (server.ok) {
+      maxMb = server.maxUploadMb;
+      return;
+    }
+    const note = document.createElement('p');
+    note.className = 'server-down';
+    note.setAttribute('role', 'status');
+    note.textContent =
+      'El servidor de conversiones no responde ahora mismo. Puedes intentarlo igual o volver en un rato. Las demás herramientas funcionan normal.';
+    $('.server-note')?.after(note);
+  });
+}
 
 const tool = setupTool({
   kind: accept.length === 1 && accept[0] === 'pdf' ? 'pdf' : accept,
@@ -20,8 +38,8 @@ const tool = setupTool({
 const runButton = $('[data-run]');
 
 async function open([file]) {
-  if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
-    tool.steps.error(`«${file.name}» pesa más de ${MAX_UPLOAD_MB} MB, el máximo para convertir en el servidor.`);
+  if (file.size > maxMb * 1024 * 1024) {
+    tool.steps.error(`«${file.name}» pesa más de ${maxMb} MB, el máximo para convertir en el servidor.`);
     return;
   }
   state = { file };

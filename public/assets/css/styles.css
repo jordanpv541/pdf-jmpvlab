@@ -1026,6 +1026,15 @@ output { font-variant-numeric: tabular-nums; }
   opacity: 0.85;
 }
 .server-note { color: var(--ink); }
+.server-down {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--danger-tint);
+  color: var(--danger);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
 .url-form {
   margin-top: 22px;
   display: grid;
