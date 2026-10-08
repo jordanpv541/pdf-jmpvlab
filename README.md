@@ -62,6 +62,17 @@ SiteGround entrega los archivos estáticos (CSS, JS, imágenes) directo con NGIN
 
 Para publicar cambios: vuelve a generar con `node tools/build.mjs` y sube otra vez el contenido de `public/`. El archivo `sw.js` cambia de versión solo. Quien tenga el sitio abierto ve el aviso «Hay una versión nueva» y la carga al tocar **Actualizar**; si no, la recibe la próxima vez que abra el sitio.
 
+## Publicar solo (opcional)
+
+El flujo `.github/workflows/publicar.yml` sube `public/` a SiteGround cada vez que las pruebas del sitio pasan en `main`. Está apagado hasta que le des acceso. Para encenderlo:
+
+1. En Site Tools, ve a Desarrolladores > Administrador de claves SSH y genera una llave nueva (anota la contraseña que le pongas).
+2. En el menú de esa llave, abre **Credenciales SSH**: ahí están el servidor (host), el usuario y el puerto. Copia también la **llave privada**.
+3. En GitHub, en el repositorio: Settings > Secrets and variables > Actions > New repository secret. Crea `SG_HOST`, `SG_PORT`, `SG_USER`, `SG_KEY` (la llave privada completa), `SG_CLAVE` (la contraseña de la llave) y `SG_RUTA` (la carpeta del sitio, por ejemplo `www/pdf.jmpvlab.com/public_html/`).
+4. Prueba con Actions > Publicar > Run workflow.
+
+No borra nada del hosting: solo sube y reemplaza archivos. La llave da acceso a tu hosting, así que no la pegues en ningún otro lado.
+
 ## Cómo funciona
 
 - **pdf-lib** crea y modifica los PDF (unir, dividir, girar, numerar, marca de agua, recortar, imágenes a PDF).

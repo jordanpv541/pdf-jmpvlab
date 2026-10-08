@@ -1,0 +1,67 @@
+# Publicar el sitio en SiteGround cuando el flujo «Sitio» termina bien en main.
+#
+# Está apagado hasta que agregues estos secretos en GitHub (Settings > Secrets and
+# variables > Actions). Los pasos están en el README, sección «Publicar solo».
+#   SG_HOST  servidor SSH de SiteGround (Site Tools > Desarrolladores > Acceso SSH)
+#   SG_PORT  puerto SSH (en SiteGround suele ser 18765)
+#   SG_USER  usuario SSH
+#   SG_KEY   llave privada SSH (la que genera Site Tools)
+#   SG_CLAVE la contraseña que le pusiste a esa llave al crearla
+#   SG_RUTA  carpeta del sitio, por ejemplo www/pdf.jmpvlab.com/public_html/
+#
+# No borra nada en el hosting: solo sube y reemplaza archivos.
+name: Publicar
+
+on:
+  workflow_run:
+    workflows: [Sitio]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  siteground:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: ¿Está configurado?
+        id: listo
+        env:
+          SG_KEY: ${{ secrets.SG_KEY }}
+        run: |
+          if [ -n "$SG_KEY" ]; then
+            echo "si=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::La publicación automática está apagada: faltan los secretos SG_* (ver README)."
+          fi
+      - uses: actions/checkout@v7
+        if: steps.listo.outputs.si == '1'
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Subir public/ a SiteGround
+        if: steps.listo.outputs.si == '1'
+        env:
+          SG_HOST: ${{ secrets.SG_HOST }}
+          SG_PORT: ${{ secrets.SG_PORT }}
+          SG_USER: ${{ secrets.SG_USER }}
+          SG_KEY: ${{ secrets.SG_KEY }}
+          SG_CLAVE: ${{ secrets.SG_CLAVE }}
+          SG_RUTA: ${{ secrets.SG_RUTA }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SG_KEY" > ~/.ssh/sitio && chmod 600 ~/.ssh/sitio
+          # La copia temporal de la llave se usa sin contraseña (se borra al terminar).
+          if [ -n "$SG_CLAVE" ]; then ssh-keygen -q -p -P "$SG_CLAVE" -N "" -f ~/.ssh/sitio; fi
+          ssh-keyscan -p "$SG_PORT" "$SG_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # Primero todo menos sw.js; al final sw.js, para que los visitantes no reciban
+          # la versión nueva antes de que estén todos sus archivos.
+          rsync -rlz --checksum --exclude 'sw.js' -e "ssh -i ~/.ssh/sitio -p $SG_PORT" public/ "$SG_USER@$SG_HOST:$SG_RUTA"
+          rsync -lz --checksum -e "ssh -i ~/.ssh/sitio -p $SG_PORT" public/sw.js "$SG_USER@$SG_HOST:$SG_RUTA"
+          rm -f ~/.ssh/sitio
