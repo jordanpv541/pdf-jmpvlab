@@ -1,5 +1,5 @@
 // Generado por tools/build.mjs. No lo edites a mano.
-const VERSION = '338ab709f2b3';
+const VERSION = 'b1451e84f933';
 const CACHE = 'pdf-jmpvlab-' + VERSION;
 const RUNTIME = 'pdf-jmpvlab-runtime-' + VERSION;
 const PRECACHE = [
@@ -22,6 +22,7 @@ const PRECACHE = [
   "assets/js/images.js",
   "assets/js/qpdf.js",
   "assets/js/remote.js",
+  "assets/js/theme.js",
   "assets/js/tools/censurar.js",
   "assets/js/tools/comprimir.js",
   "assets/js/tools/convertir.js",

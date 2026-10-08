@@ -62,6 +62,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <link rel="preload" href="${asset('assets/fonts/figtree-latin.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="${asset('assets/fonts/bricolage-grotesque-latin.woff2')}" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="${asset('assets/css/styles.css')}">
+<script src="${asset('assets/js/theme.js')}"></script>
 ${script ? `<script type="module" src="${asset(script)}"></script>` : ''}
 </head>
 <body>
@@ -73,6 +74,9 @@ ${script ? `<script type="module" src="${asset(script)}"></script>` : ''}
       <a href="${link('')}#herramientas">Herramientas</a>
       <a class="nav-optional" href="${link('privacidad/')}">Privacidad</a>
       <button type="button" class="btn btn-quiet btn-small" id="install" hidden>Instalar app</button>
+      <div class="tema-selector">
+        <button type="button" class="tema-boton" id="theme-toggle" data-tema="light" aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">${icons.sun.replace('<svg ', '<svg class="icono-sol" ')}${icons.moon.replace('<svg ', '<svg class="icono-luna" ')}</button>
+      </div>
     </nav>
   </div>
 </header>
