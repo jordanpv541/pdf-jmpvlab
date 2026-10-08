@@ -49,8 +49,19 @@ export function readBytes(file) {
   return file.arrayBuffer().then((buf) => new Uint8Array(buf));
 }
 
+/**
+ * Deja que la pantalla se actualice (barra de progreso) antes de seguir trabajando.
+ * Si la pestaña está en segundo plano el navegador no dibuja cuadros, así que también
+ * se sigue a los 100 ms: el trabajo no se queda congelado hasta que vuelvas.
+ */
 export function nextFrame() {
-  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+  return new Promise((resolve) => {
+    const timer = setTimeout(resolve, 100);
+    requestAnimationFrame(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
 }
 
 /* ---------- Archivos de entrada ---------- */

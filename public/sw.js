@@ -1,5 +1,5 @@
 // Generado por tools/build.mjs. No lo edites a mano.
-const VERSION = '4e74d9afce65';
+const VERSION = '91c668cd2629';
 const SHELL = 'pdf-jmpvlab-' + VERSION;
 const LIBS = 'pdf-jmpvlab-libs-e9773cf63a17';
 const SHELL_FILES = [

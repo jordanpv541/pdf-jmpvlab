@@ -199,6 +199,19 @@ with sync_playwright() as p:
     except Exception:
         traceback.print_exc(); check('zip: sin excepciones', False)
 
+    # --- Pestaña en segundo plano: el navegador no dibuja cuadros, el trabajo debe seguir ---
+    try:
+        page = nueva(ctx, 'eliminar-paginas/', errores)
+        page.evaluate('window.requestAnimationFrame = () => 0')  # como una pestaña oculta
+        page.set_input_files('[data-input]', str(FX / 'long.pdf'))
+        page.wait_for_selector('[data-step="work"]:not([hidden])')
+        page.fill('#remove', '2-4')
+        f = descargar(page, 'segundo-plano.pdf', timeout=30000)
+        check('segundo plano: la herramienta termina igual', f.stat().st_size > 0)
+        page.close()
+    except Exception:
+        traceback.print_exc(); check('segundo plano: sin excepciones', False)
+
     check('sin errores de consola ni de CSP', not errores, errores[:4])
     ctx.close()
 
