@@ -1,12 +1,16 @@
 """Conversiones que se hacen dentro de la API (sin Gotenberg).
 
 Cada función recibe la ruta de un PDF y escribe el resultado en `out_path`.
-Se ejecutan en un proceso aparte (ver app.py) para poder cortarlas si tardan demasiado.
+Todo lo que abre un PDF (también contar sus páginas) corre en un proceso aparte
+(ver `child_main` y app.py): así se puede cortar si tarda demasiado, tiene un tope
+de memoria y, si se cae, no tumba al servidor web.
 """
 
 from __future__ import annotations
 
+import errno
 import io
+import math
 import re
 
 import pymupdf
@@ -14,6 +18,10 @@ import pymupdf
 # Límites para que una sola conversión no acapare el servidor.
 MAX_SLIDE_PAGES = 150
 SLIDE_DPI = 150
+# Tope de píxeles por diapositiva (unos 25 megapíxeles). Una página gigante
+# (por ejemplo, un plano de 200 × 200 pulgadas) se dibuja con menos DPI en vez de
+# pedir gigas de memoria.
+MAX_SLIDE_PIXELS = 25_000_000
 
 
 def pdf_to_word(pdf_path: str, out_path: str) -> str:
@@ -117,6 +125,18 @@ def pdf_to_excel(pdf_path: str, out_path: str) -> str:
         doc.close()
 
 
+def slide_zoom(width_pt: float, height_pt: float) -> float:
+    """Aumento para dibujar una página: SLIDE_DPI, o menos si pasaría de MAX_SLIDE_PIXELS.
+
+    1 punto = 1/72 de pulgada, así que a `zoom` la imagen mide (ancho × zoom) × (alto × zoom) píxeles.
+    """
+    zoom = SLIDE_DPI / 72
+    area = max(width_pt * height_pt, 1.0)
+    if area * zoom * zoom > MAX_SLIDE_PIXELS:
+        zoom = math.sqrt(MAX_SLIDE_PIXELS / area)
+    return zoom
+
+
 def pdf_to_powerpoint(pdf_path: str, out_path: str) -> str:
     """Una diapositiva por página, con la página como imagen y su texto en las notas."""
     from pptx import Presentation
@@ -134,7 +154,8 @@ def pdf_to_powerpoint(pdf_path: str, out_path: str) -> str:
         prs.slide_height = Emu(int(first.height * scale * 12700))
         blank = prs.slide_layouts[6]
         for page in doc:
-            pix = page.get_pixmap(dpi=SLIDE_DPI, alpha=False)
+            zoom = slide_zoom(page.rect.width, page.rect.height)
+            pix = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)
             image = io.BytesIO(pix.tobytes("png"))
             slide = prs.slides.add_slide(blank)
             slide.shapes.add_picture(image, 0, 0, width=prs.slide_width, height=prs.slide_height)
@@ -165,12 +186,58 @@ LOCAL_CONVERTERS = {
 }
 
 
-def run_in_child(kind: str, pdf_path: str, out_path: str, conn) -> None:
-    """Punto de entrada del proceso hijo: convierte y avisa el resultado por la tubería."""
+COUNT_PAGES = "contar-paginas"
+
+
+def _limit_child(memory_bytes: int, file_bytes: int) -> None:
+    """Topes del proceso hijo, para que un PDF raro no se coma el servidor."""
+    import resource
+
     try:
-        note = LOCAL_CONVERTERS[kind][0](pdf_path, out_path)
-        conn.send(("ok", note or ""))
-    except Exception as exc:  # noqa: BLE001
-        conn.send(("error", f"{type(exc).__name__}: {exc}"[:300]))
+        # Si aun así falta memoria, que el sistema mate primero a este hijo y no al servidor web.
+        with open("/proc/self/oom_score_adj", "w") as fh:
+            fh.write("1000")
+    except OSError:
+        pass
+    # RLIMIT_AS: memoria máxima. Si se pasa, la conversión falla con MemoryError.
+    # RLIMIT_FSIZE: tamaño máximo de cada archivo que escribe (el resultado).
+    for limit, value in ((resource.RLIMIT_AS, memory_bytes), (resource.RLIMIT_FSIZE, file_bytes)):
+        if value > 0:
+            try:
+                resource.setrlimit(limit, (value, value))
+            except (ValueError, OSError):
+                pass
+
+
+def _reason(exc: BaseException) -> str:
+    """Pone nombre a los errores que la API sabe explicar."""
+    text = str(exc)
+    if isinstance(exc, MemoryError) or "malloc" in text or "out of memory" in text.lower():
+        return "memoria"
+    if isinstance(exc, OSError) and exc.errno == errno.EFBIG:
+        return "muy-grande"
+    if isinstance(exc, PermissionError) or text == "protegido":
+        return "protegido"
+    if "demasiadas páginas" in text:
+        return "demasiadas-paginas"
+    if "sin texto" in text:
+        return "sin-texto"
+    return "otro"
+
+
+def child_main(task: str, args: tuple, conn, memory_bytes: int = 0, file_bytes: int = 0) -> None:
+    """Punto de entrada del proceso hijo: hace la tarea y avisa el resultado por la tubería.
+
+    Envía ("ok", resultado) o ("error", motivo, detalle).
+    """
+    try:
+        _limit_child(memory_bytes, file_bytes)
+        if task == COUNT_PAGES:
+            result = page_count(*args)
+        else:
+            result = LOCAL_CONVERTERS[task][0](*args) or ""
+        conn.send(("ok", result))
+    except BaseException as exc:  # noqa: BLE001 - cualquier error se avisa a la API
+        conn.send(("error", _reason(exc), f"{type(exc).__name__}: {exc}"[:300]))
     finally:
         conn.close()

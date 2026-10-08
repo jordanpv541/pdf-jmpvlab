@@ -13,28 +13,66 @@ APP_DIR="${APP_DIR:-/opt/pdf-jmpvlab}"
 API_DOMAIN="${API_DOMAIN:-api-pdf.jmpvlab.com}"
 ALLOWED_ORIGINS="${ALLOWED_ORIGINS:-https://pdf.jmpvlab.com}"
 
+# docker compose de respaldo, por si Ubuntu no lo trae. Versión fija y huella sha256
+# copiada de https://github.com/docker/compose/releases/tag/v5.5.1 (checksums.txt).
+COMPOSE_VERSION=v5.5.1
+COMPOSE_SHA256_aarch64=732e3a84c1a0f67256ce80bc2598a24546b10ca05f9faa97efceb1171ece2ef7
+COMPOSE_SHA256_x86_64=db1889184726840f75c4f9c001048430d4f25b3be3cb084d3ddd762bc0aed576
+
 if [ "$(id -u)" -ne 0 ]; then
   echo "Ejecuta este script como root (sudo)." >&2
   exit 1
 fi
 
-echo "==> Paquetes del sistema"
 export DEBIAN_FRONTEND=noninteractive
-echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
-echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
-apt-get update -y
-apt-get install -y --no-install-recommends ca-certificates curl git iptables-persistent docker.io
+# En el primer arranque, Ubuntu suele estar instalando parches (unattended-upgrades) y
+# tiene apt ocupado. En vez de fallar, se espera hasta 10 minutos a que lo suelte.
+apt_get() {
+  local try
+  for try in $(seq 1 20); do
+    if apt-get -o DPkg::Lock::Timeout=600 "$@"; then
+      return 0
+    fi
+    echo "   apt está ocupado o falló (intento $try de 20); vuelvo a intentar en 30 s"
+    sleep 30
+  done
+  return 1
+}
+
+echo "==> Paquetes del sistema"
+# Las imágenes de Oracle traen iptables-persistent. Que nunca guarde solo las reglas actuales:
+# guardaría también las de Docker, y al reiniciar quedarían viejas y repetidas. Nuestras reglas
+# las pone el servicio pdf-jmpvlab-firewall en cada arranque.
+echo iptables-persistent iptables-persistent/autosave_v4 boolean false | debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean false | debconf-set-selections
+apt_get update -y
+apt_get install -y --no-install-recommends ca-certificates curl git iptables docker.io
 # docker compose v2 (el nombre del paquete cambia según la versión de Ubuntu)
-apt-get install -y --no-install-recommends docker-compose-v2 2>/dev/null \
-  || apt-get install -y --no-install-recommends docker-compose-plugin 2>/dev/null \
-  || true
+for pkg in docker-compose-v2 docker-compose-plugin; do
+  if apt-cache show "$pkg" >/dev/null 2>&1; then
+    apt_get install -y --no-install-recommends "$pkg" || true
+    break
+  fi
+done
 systemctl enable --now docker
 if ! docker compose version >/dev/null 2>&1; then
-  echo "   (instalando docker compose desde GitHub)"
+  arch=$(uname -m)
+  case "$arch" in
+    aarch64) sha=$COMPOSE_SHA256_aarch64 ;;
+    x86_64) sha=$COMPOSE_SHA256_x86_64 ;;
+    *) echo "No hay docker compose para la arquitectura $arch." >&2; exit 1 ;;
+  esac
+  echo "   (instalando docker compose $COMPOSE_VERSION desde GitHub)"
   mkdir -p /usr/local/lib/docker/cli-plugins
-  curl -fsSL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m)" \
-    -o /usr/local/lib/docker/cli-plugins/docker-compose
-  chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+  tmp=$(mktemp)
+  curl -fsSL "https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-linux-$arch" -o "$tmp"
+  if ! echo "$sha  $tmp" | sha256sum -c --quiet -; then
+    rm -f "$tmp"
+    echo "La descarga de docker compose no coincide con su huella sha256. No se instala." >&2
+    exit 1
+  fi
+  install -m 0755 "$tmp" /usr/local/lib/docker/cli-plugins/docker-compose
+  rm -f "$tmp"
 fi
 docker compose version
 
@@ -59,36 +97,8 @@ if [ ! -f .env ]; then
   sed -i "s|^ALLOWED_ORIGINS=.*|ALLOWED_ORIGINS=$ALLOWED_ORIGINS|" .env
 fi
 
-echo "==> Firewall"
-install -m 0755 firewall.sh /usr/local/sbin/pdf-jmpvlab-firewall
-cat > /etc/systemd/system/pdf-jmpvlab-firewall.service <<'UNIT'
-[Unit]
-Description=Reglas de firewall del servidor de PDF jmpvlab
-After=docker.service network-online.target
-Wants=docker.service
-
-[Service]
-Type=oneshot
-ExecStart=/usr/local/sbin/pdf-jmpvlab-firewall
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target
-UNIT
-systemctl daemon-reload
-systemctl enable pdf-jmpvlab-firewall.service
-
-echo "==> Contenedores"
-docker compose pull caddy gotenberg
-docker compose up -d --build --remove-orphans
-systemctl restart pdf-jmpvlab-firewall.service
-
-echo "==> Actualizaciones semanales de Caddy y Gotenberg (parches de seguridad)"
-cat > /etc/cron.weekly/pdf-jmpvlab-update <<CRON
-#!/bin/sh
-cd $APP_DIR/server && docker compose pull caddy gotenberg && docker compose up -d && docker image prune -f
-CRON
-chmod 0755 /etc/cron.weekly/pdf-jmpvlab-update
+# El resto (firewall, tareas semanales, contenedores y revisión de salud) lo hace update.sh.
+bash "$APP_DIR/server/update.sh" --sin-codigo
 
 echo
 echo "Listo. Revisa en unos minutos: https://$API_DOMAIN/v1/health"

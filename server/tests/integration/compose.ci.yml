@@ -1,0 +1,12 @@
+# Solo para las pruebas de GitHub Actions (tests/integration/integracion.py).
+# Se usa encima de docker-compose.yml:
+#   docker compose -f docker-compose.yml -f tests/integration/compose.ci.yml up -d --build --wait
+#
+# Lo único distinto: la API también se publica en 127.0.0.1:8000 para probarla sin pasar por Caddy.
+# Caddy corre igual que en el servidor, con API_DOMAIN=localhost (certificado propio, sin Let's Encrypt).
+# El firewall (firewall.sh) no se instala en las pruebas: así se comprueba que Gotenberg
+# bloquea las direcciones internas por su cuenta.
+services:
+  api:
+    ports:
+      - "127.0.0.1:8000:8000"

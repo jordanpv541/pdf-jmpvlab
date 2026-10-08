@@ -2,6 +2,8 @@
 
 {$API_DOMAIN} {
 	encode gzip
+	# Tope externo del tamaño de la petición. La API tiene su propio tope (MAX_UPLOAD_MB = 50 MB)
+	# y rechaza antes de recibir el archivo; este es un respaldo un poco más alto.
 	request_body {
 		max_size 55MB
 	}
@@ -9,5 +11,7 @@
 		Strict-Transport-Security "max-age=31536000"
 		-Server
 	}
+	# Caddy borra el X-Forwarded-For que mande el visitante y pone su IP real:
+	# la API usa esa IP para los límites por persona. (No configures trusted_proxies.)
 	reverse_proxy api:8000
 }

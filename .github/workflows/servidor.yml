@@ -1,0 +1,67 @@
+# Servidor de conversiones: pruebas de la API, de los scripts y de los contenedores de verdad.
+name: Servidor
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r server/api/requirements.txt pytest shellcheck-py
+      - name: Pruebas de la API (con un Gotenberg falso)
+        run: python -m pytest server/tests -q
+      - name: Revisar los scripts del servidor
+        run: |
+          for script in server/*.sh; do bash -n "$script"; done
+          shellcheck server/*.sh
+
+  integracion:
+    # Caddy, la API y Gotenberg de verdad, con el mismo docker-compose.yml del servidor.
+    # Oracle Ampere es ARM (arm64): se prueba en las dos arquitecturas.
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: server
+    env:
+      COMPOSE_FILE: docker-compose.yml:tests/integration/compose.ci.yml
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: pip install -r api/requirements.txt
+      - name: Preparar el .env de prueba
+        run: |
+          cp .env.example .env
+          # Caddy con certificado propio para localhost; límite por persona alto porque todas las pruebas salen de la misma IP.
+          sed -i 's|^API_DOMAIN=.*|API_DOMAIN=localhost|; s|^RATE_LIMIT=.*|RATE_LIMIT=1000|' .env
+      - name: Revisar docker-compose.yml
+        run: docker compose config -q
+      - name: Construir y levantar los contenedores
+        run: docker compose up -d --build --wait --wait-timeout 300
+      - name: La API carga sus librerías
+        run: docker compose exec -T api python -c "import app, converters, pdf2docx, openpyxl, pptx; print('ok')"
+      - name: Pruebas de integración
+        run: python tests/integration/integracion.py
+      - name: Estado y registros de los contenedores
+        if: always()
+        run: |
+          docker compose ps
+          docker compose logs --tail 200
+      - name: Apagar
+        if: always()
+        run: docker compose down -v
